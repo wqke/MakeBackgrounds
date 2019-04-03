@@ -107,16 +107,16 @@ BF['rho0_2pi']=1.
 BF['rhoplus_2pi']=1.
 
 
-BF['dsgamma_5pi']=BF['dsgamma']*BF['5pi']
-BF['dsgamma_etapi']=BF['dsgamma']*BF['etapi']
-BF['dsgamma_etappi_etapipi']=BF['dsgamma']*BF['etappi_etapipi']
-BF['dsgamma_etappi_rhogamma']=BF['dsgamma']*BF['etappi_rhogamma']
-BF['dsgamma_etaprho_etapipi']=BF['dsgamma']*
-BF['dsgamma_etaprho_rhogamma']=BF['dsgamma']*
-BF['dsgamma_etarho']=BF['dsgamma']*
-BF['dsgamma_omega3pi']=BF['dsgamma']*
-BF['dsgamma_omegapi']=BF['dsgamma']*
-BF['dsgamma_omegarho']=BF['dsgamma']*
+BF['dsgamma_5pi']=
+BF['dsgamma_etapi']=
+BF['dsgamma_etappi_etapipi']=
+BF['dsgamma_etappi_rhogamma']=
+BF['dsgamma_etaprho_etapipi']=
+BF['dsgamma_etaprho_rhogamma']=
+BF['dsgamma_etarho']=
+BF['dsgamma_omega3pi']=
+BF['dsgamma_omegapi']=
+BF['dsgamma_omegarho']=
 BF['dsstpi0_dsgamma']=
 BF['dsstpi0_dsgamma']=
 BF['dsstpi0_dsgamma']=
