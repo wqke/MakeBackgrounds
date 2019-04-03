@@ -74,29 +74,38 @@ BF['Dst0_d0pi0']=0.647
 #D*0 -> pi+pi+pi-pi0
 BF['Dplus_d0gamma']=0.353
 
-
-
 ###Ds+ decays
-#Ds+->eta & anything
-BF['etaANY']=0.299
-#Ds+->eta' & anything
-BF['etapANY']=0.103
-#Ds+->pi+ & anything
-BF['piplusANY']=1.193
-#Ds+->pi0 & anything
-BF['pi0ANY']=1.234
-#Ds+->pi- & anything
-BF['piminANY']=0.432
-#Ds+->omega & anything
-BF['omegaANY']=0.061
+#Ds+->eta pi+
+BF['Dsplus_etapi']=0.017
+#Ds+->omega pi+
+BF['Dsplus_omegapi']=2.4e-3
+#Ds+->eta rho
+BF['Dsplus_etarho']=0.089
+#Ds+->omega rho
+BF['Dsplus_omegarho']=
+#Ds+->rho0(pi+ pi-) rho0 (pi+ pi-) pi+
+BF['Dsplus_5pi']=8e-3
 
 
-#Ds+ -> rho rho 5pi   (pi+ &anything)
-BF['5pi']=1.193
-#Ds+->eta(->3pi)pi+  (eta &anything)
-BF['etapi']=0.017  0.299
-#Ds+->eta(something)pi+  (eta' &anything)
-BF['etappi_etapipi']=0.103
+#Ds+->omega pi+pi+pi-
+BF['Dsplus_omega3pi']=0.016
+#Ds+->eta' pi+
+BF['Dsplus_etappi']=0.0394
+#Ds+->eta' rho+
+BF['Dsplus_etaprho']=0.058
+
+
+###eta decay : eta-> pi+ pi- pi0
+BF['eta_3pi']=0.2292
+###eta' decays : eta'->eta pi+ pi- 
+BF['etap_eta2pi']=0.426
+#eta'->rho0 gamma 
+BF['etap_rhogamma']=0.289
+###rho0 decay : rho0 ->pi+pi-
+BF['rho0_2pi']=1.
+###rho+ decay : rho+ ->pi+pi0
+BF['rhoplus_2pi']=1.
+
 
 BF['dsgamma_5pi']=BF['dsgamma']*BF['5pi']
 BF['dsgamma_etapi']=BF['dsgamma']*BF['etapi']
