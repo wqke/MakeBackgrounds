@@ -91,7 +91,7 @@ BF['Dstmin']['D0pi']=0.677
 ###eta decay : eta-> pi+ pi- pi0
 BF['eta']['3pi']=0.2292
 ###eta' decays : eta'->eta pi+ pi- 
-BF['etap']['eta2pi']=0.426
+BF['etap']['etapipi']=0.426
 #eta'->rho0 gamma 
 BF['etap']['rhogamma']=0.289
 ###rho0 decay : rho0 ->pi+pi-
@@ -105,15 +105,20 @@ BF['omega']['3pi']=0.892
 #Ds+->eta pi+
 BF['Dsplus']['etapi']=0.017
 #Ds+->(eta->3pi) pi+
-BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
+#BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
+BF['Dsplus']['etapi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
 #Ds+->omega pi+
 BF['Dsplus']['omegapi']=2.4e-3
 #Ds+->(omega->3pi) pi+
-BF['Dsplus']['omegapi_3pi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
+#BF['Dsplus']['omegapi_3pi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
+BF['Dsplus']['omegapi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
 #Ds+->eta rho
 BF['Dsplus']['etarho']=0.089
 #Ds+->(eta->3pi) (rho->2pi)
-BF['Dsplus']['etarho_5pi']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
+#BF['Dsplus']['etarho_5pi']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
+BF['Dsplus']['etarho']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
+#Ds+->eta' rho+
+BF['Dsplus']['etaprho']=0.058
 #Ds+->omega rho
 BF['Dsplus']['omegarho']=
 #Ds+->rho0(pi+ pi-) rho0 (pi+ pi-) pi+
@@ -126,6 +131,12 @@ BF['Dsplus']['omega3pi']=0.016
 BF['Dsplus']['etappi']=0.0394
 #Ds+->eta' rho+
 BF['Dsplus']['etaprho']=0.058
+
+BF['Dsplus']['etappi_etapipi']=BF['Dsplus']['etappi'] * BF['etap']['etapipi'] * BF['eta']['3pi']
+BF['Dsplus']['etappi_rhogamma']=BF['Dsplus']['etappi'] * BF['etap']['rhogamma'] * BF['rho0']['2pi']
+BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] * BF['eta']['3pi'] * BF['rhoplus']['2pi']
+BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
+
 
 
 ############PLOT THE TOTAL HISTOGRAMS############
@@ -244,10 +255,20 @@ files5=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststDs1/d
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststDs1/dsstpi0_dsgamma_omegarho_LHCb_Total/model_vars.root']
 
 
-#27:-70
+#(a.split('/')[-2]).split('_')
+#['dsstpi0', 'dsgamma', 'omegarho', 'LHCb', 'Total']
+#frac_sim[a.split('/')[-3]]
 
-df=root_pandas.read_root(files1,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
 
+for file in files1:
+  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name
+  if len(components)==1:
+    df_weights=np.ones_like(df.values) * BF['Dstmin']['D0pi'] * BF['Dsplus']['']
+
+  
+  
 df_merged = pd.concat([df, df2], ignore_index=True)
 
 # weights
