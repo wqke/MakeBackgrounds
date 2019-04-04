@@ -14,23 +14,15 @@ from uncertainties import *
 #D* Ds X
 #Fractions defined relative to D* Ds*(=1)
 
-#Simulation values
-frac_sim={}
-frac_sim['Bd2DstDs']=0.54
-frac_sim['Bd2DstDsst']=1.
-frac_sim['Bd2DstDs1']=
-frac_sim['Bu2DststDs']=
-frac_sim['Bu2DststDsst']=
-frac_sim['Bu2DststDs1']=0.39
-
 #Fit values
 frac_fit={}
 frac_fit['Bd2DstDs']=0.594
 frac_fit['Bd2DstDsst']=1.
-frac_fit['Bd2DstDs1']=
-frac_fit['Bu2DststDs']=
-frac_fit['Bu2DststDsst']=
-frac_fit['Bu2DststDs1']=0.365
+frac_fit['Bd2DstDs1']=0.365
+
+frac_fit['Bu2DststDs1']=0.416*
+frac_fit['Bu2DststDs']=0.416*
+frac_fit['Bu2DststDsst']=0.416*
 
 
 #SUB MODES
@@ -54,6 +46,7 @@ BF['Dsplus']={}
 ###Ds1(2460) decays
 #Ds1(2460)->Ds+ gamma
 BF['Ds1']['dsgamma']=0.18
+#Ds1(2460)->Ds*+ pi0
 BF['Ds1']['dsstpi0']=0.48
 
 ###Ds* decays
@@ -64,7 +57,7 @@ BF['Dsst']['dspi0']=0.058
 
 ###D1(2420)0 decays
 #D1(2420) -> D*- pi+
-BF['D10']['dstpiplus']='seen'
+BF['D10']['dstpiplus']=1.
 
 ###D+ decays
 #D+ -> Ks0 3pi
@@ -120,9 +113,9 @@ BF['Dsplus']['etarho']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
 #Ds+->eta' rho+
 BF['Dsplus']['etaprho']=0.058
 #Ds+->omega rho
-BF['Dsplus']['omegarho']=
+BF['Dsplus']['omegarho']=0.028 
 #Ds+->rho0(pi+ pi-) rho0 (pi+ pi-) pi+
-BF['Dsplus']['5pi']=
+BF['Dsplus']['5pi']=8e-3  
 
 
 #Ds+->omega pi+pi+pi-
@@ -139,9 +132,12 @@ BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] 
 
 
 
+
+
+
 ############PLOT THE TOTAL HISTOGRAMS############
 
-#Bd2DstDs1
+#Bd2DstDs1   :   B0->D
 files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsgamma_5pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsgamma_etapi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsgamma_etappi_etapipi_LHCb_Total/model_vars.root',
@@ -258,35 +254,62 @@ files5=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststDs1/d
 #(a.split('/')[-2]).split('_')
 #['dsstpi0', 'dsgamma', 'omegarho', 'LHCb', 'Total']
 #frac_sim[a.split('/')[-3]]
-
-
 for file in files1:
   df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
   if len(components)==1:
-    df_weights=np.ones_like(df.values) * BF['Dstmin']['D0pi'] * BF['Dsplus']['']
+    df_weights=np.ones_like(df.values) * BF['Dstmin']['D0pi'] * BF['Dsplus'][components[0]]
+  if len(components)==2:
+    df_weights=np.ones_like(df.values) * BF['Dstmin']['D0pi'] * BF['Dsplus'][components[0]+'_'+components[1]]
+  print len(components)
+  print df_weights
+  
+  
+weights3=[]
+values3=[]
+df_weights3=[]
+for file in files3:
+  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name
+  if len(components)==1:
+    weight=BF['D10']['dstpiplus'] * BF['Dsplus'][components[0]]
+  if len(components)==2:
+    weight=BF['D10']['dstpiplus'] * BF['Dsplus'][components[0]+'_'+components[1]]
+  weights3.append(weight)
+  values3.append(df.values)
+  df_weights3.append(np.ones_like(df.values) )
+maxi=max(weights3)
+for i in range(len(weights3)):
+  weights3[i]=weights3[i]/maxi   #define the weight with regard to the biggest one
+for i in range(len(weights3)):
+  df_weights3[i]=df_weights3[i]*weights3[i]
+
 
   
   
-df_merged = pd.concat([df, df2], ignore_index=True)
 
-# weights
-df_weights = np.ones_like(df.values) / len(df_merged)
-df2_weights = np.ones_like(df2.values) / len(df_merged)
-df_merged_weights = np.ones_like(df_merged.values) / len(df_merged)
-
-plt_range = (df_merged.values.min(), df_merged.values.max())
-fig, ax = plt.subplots()
-ax.hist(df.values, bins=100, weights=df_weights, color='black', histtype='step', label='df', range=plt_range)
-ax.hist(df2.values, bins=100, weights=df2_weights, color='green', histtype='step', label='df2', range=plt_range)
-ax.hist(df_merged.values, bins=100, weights=df_merged_weights, color='red', histtype='step', label='Combined', range=plt_range)
-
-ax.margins(0.05)
-ax.set_ylim(bottom=0)
-#ax.set_xlim([0, 1000])
-plt.legend(loc='upper right')
-# plt.savefig('output.png')
+  
+    
+  
+########
+#df_merged = pd.concat([df, df2], ignore_index=True)
+#df_merged_weights = np.ones_like(df_merged.values) / len(df_merged)
+ranges=[[0.,13.],[-1.,1.],[-np.pi,np.pi],[-1.,1.]]
+filenames=['q2','costhetaL','chi','costhetaD']
+titles=[r'$q^2$',r'cos$(\theta_L)$',r'$\chi$',r'cos$(\theta_D)$']
+for i in range(4):
+  fig, ax = plt.subplots()
+  for j in range(len(weights3)):
+    ax.hist(values3[j][:,i], weights=df_weights3[j][:,i], histtype='step',bins=100, range=ranges[i])
+    ax.margins(0.05)
+    #ax.set_ylim(bottom=0)
+    #ax.set_xlim([0, 1000])
+    #plt.legend(loc='upper right')
+  plt.title(titles[i])
+  plt.savefig(filenames[i]+'.pdf')
+  plt.close()
 
 
 
