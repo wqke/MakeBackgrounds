@@ -11,20 +11,23 @@ from root_numpy import root2array, rec2array, tree2array
 from ROOT import TFile,TChain,TTree
 from uncertainties import *
 
-#D* Ds X
+#D* Ds X background
 #Fractions defined relative to D* Ds*(=1)
-
 #Fit values
 frac_fit={}
 frac_fit['Bd2DstDs']=0.594
 frac_fit['Bd2DstDsst']=1.
 frac_fit['Bd2DstDs1']=0.365
 
-frac_fit['Bu2DststDs1']=0.416*
-frac_fit['Bu2DststDs']=0.416*
-frac_fit['Bu2DststDsst']=0.416*
-
-
+frac_fit['Bu2DststDs1']=0.416*5e-4/(5e-4+0.0177+8e-3)   #fraction of the sum x relative branching fractions
+frac_fit['Bu2DststDs']=0.416*0.0177/(5e-4+0.0177+8e-3)
+frac_fit['Bu2DststDsst']=0.416*8e-3/(5e-4+0.0177+8e-3)
+"""
+*The BF are taken to be proportional to the following decays
+B+->D1(2420)0 Ds*+ : B -> D* Ds  =8e-3
+B+->D1(2420)0 Ds+ : B -> D* Ds*  =0.0177
+B+->D1(2420)0 Ds1(2460)+ : B -> D* Ds1  =5e-4
+"""
 #SUB MODES
 #branching fractions
 BF={}
@@ -137,7 +140,7 @@ BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] 
 
 ############PLOT THE TOTAL HISTOGRAMS############
 
-#Bd2DstDs1   :   B0->D
+#Bd2DstDs1   :   B0->D*-Ds1(2460)+
 files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsgamma_5pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsgamma_etapi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsgamma_etappi_etapipi_LHCb_Total/model_vars.root',
@@ -158,6 +161,33 @@ files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsga
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsstpi0_dsgamma_omegapi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs1/dsstpi0_dsgamma_omegarho_LHCb_Total/model_vars.root']
 
+weights0=[]
+values0=[]
+df_weights0=[]
+for file in files:
+  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
+  weight=BF['Dstmin']['D0pi'] * BF['Ds1'][components[0]]
+  if components[0]=='dsgamma':
+    if len(components)==2:
+      weight=weight*BF['Dsplus'][components[1]]
+    if len(components)==3:
+      weight=weight*BF['Dsplus'][components[1]+'_'+components[2]]
+  elif components[0]=='dsstpi0': 
+    if len(components)==3:
+      weight=weight*BF['Dsst']['dsgamma']*BF['Dsplus'][components[2]]
+    if len(components)==4:
+      weight=weight*BF['Dsst']['dsgamma']*BF['Dsplus'][components[2]+'_'+components[3]]
+  weights0.append(weight)
+  values0.append(df.values)
+  df_weights0.append(np.ones_like(df.values) )
+sum0=sum(weights0)
+for i in range(len(weights0)):
+  weights0[i]=weights0[i]/sum0   #define the weight with regard to the biggest one
+for i in range(len(weights0)):
+  df_weights0[i]=df_weights0[i]*weights0[i]
+
 #Bd2DstDs
 files1=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs/5pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs/etapi_LHCb_Total/model_vars.root',
@@ -169,6 +199,31 @@ files1=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs/5pi_
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs/omega3pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs/omegapi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDs/omegarho_LHCb_Total/model_vars.root']
+
+weights1=[]
+values1=[]
+df_weights1=[]
+for file in files1:
+  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name
+  if len(components)==1:
+    weight=BF['Dstmin']['D0pi']* BF['Dsplus'][components[0]]
+  if len(components)==2:
+    weight=BF['Dstmin']['D0pi'] * BF['Dsplus'][components[0]+'_'+components[1]]
+  weights1.append(weight)
+  values1.append(df.values)
+  df_weights1.append(np.ones_like(df.values) )
+
+sum1=sum(weights1)
+for i in range(len(weights1)):
+  weights1[i]=weights1[i]/sum1   #define the weight with regard to the biggest one
+
+for i in range(len(weights1)):
+  df_weights1[i]=df_weights1[i]*weights1[i]
+
+
+
 
 #Bd2DstDsst
 files2=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDsst/dsgamma_5pi_LHCb_Total/model_vars.root',
@@ -254,18 +309,7 @@ files5=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststDs1/d
 #(a.split('/')[-2]).split('_')
 #['dsstpi0', 'dsgamma', 'omegarho', 'LHCb', 'Total']
 #frac_sim[a.split('/')[-3]]
-for file in files1:
-  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
-  components=(file.split('/')[-2]).split('_')
-  components=components[:-2]   #extract the sub mode from the file name
-  if len(components)==1:
-    df_weights=np.ones_like(df.values) * BF['Dstmin']['D0pi'] * BF['Dsplus'][components[0]]
-  if len(components)==2:
-    df_weights=np.ones_like(df.values) * BF['Dstmin']['D0pi'] * BF['Dsplus'][components[0]+'_'+components[1]]
-  print len(components)
-  print df_weights
-  
-  
+
 weights3=[]
 values3=[]
 df_weights3=[]
@@ -280,9 +324,9 @@ for file in files3:
   weights3.append(weight)
   values3.append(df.values)
   df_weights3.append(np.ones_like(df.values) )
-maxi=max(weights3)
+sum3=sum(weights3)
 for i in range(len(weights3)):
-  weights3[i]=weights3[i]/maxi   #define the weight with regard to the biggest one
+  weights3[i]=weights3[i]/sum3   #define the weight with regard to the biggest one
 for i in range(len(weights3)):
   df_weights3[i]=df_weights3[i]*weights3[i]
 
