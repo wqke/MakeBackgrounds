@@ -423,25 +423,30 @@ def addlist(a,b):
 ranges=[[0.,13.],[-1.,1.],[-np.pi,np.pi],[-1.,1.]]
 filenames=['q2','costhetaL','chi','costhetaD']
 titles=[r'$q^2$',r'cos$(\theta_L)$',r'$\chi$',r'cos$(\theta_D)$']
+totalfile=[file,file1,file2,file3,file4,file5]
+totalweights=[df_weights0,df_weights1,df_weights2,df_weights3,df_weights4,df_weights5]
+
+binnumber=100
+
+
 for i in range(4):
-  fig, ax = plt.subplots()
-  bin_heights, bin_borders, _=ax.hist(values3[0][:,i], weights=df_weights3[0][:,i], histtype='step',bins=100, range=ranges[i])
-  bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
-  plt.close()
-  for j in range(1,len(weights3)):
-    bin_heights_new, bin_borders_new, _=ax.hist(values3[j][:,i], weights=df_weights3[j][:,i], histtype='step',bins=100, range=ranges[i])
-    bin_heights=addlist(bin_heights,bin_heights_new)
+  for k in range(6):
+    TOTAL_HEIGHTS=[0]*binnumber
+    fig, ax = plt.subplots()
+    bin_heights, bin_borders, _=ax.hist(values3[0][:,i], weights=totalweights[k][0][:,i], histtype='step',bins=binnumber, range=ranges[i])
+    bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
     plt.close()
-  plt.scatter(bin_centers,bin_heights)
-  plt.title(titles[i])
-  plt.savefig(filenames[i]+'.pdf')
+    for j in range(1,len(weights3)):
+      bin_heights_new, bin_borders_new, _=ax.hist(values3[j][:,i], weights=totalweights[k][j][:,i], histtype='step',bins=binnumber, range=ranges[i])
+      bin_heights=addlist(bin_heights,bin_heights_new)
+      plt.close()
+    TOTAL_HEIGHTS=addlist(TOTAL_HEIGHTS,bin_heights)
+  plt.scatter(bin_centers,TOTAL_HEIGHTS,marker='.')
+  plt.ylim(bottom=0)  
+  plt.title(titles[i]+r'B $\rightarrow$ $D^*$ $D_s$ X')
+  plt.savefig(filenames[i]+'_total.pdf')
   plt.close()
   
 
-totalfile=[file,file1,file2,file3,file4,file5]
 
-
-bin_heights, bin_borders, _=plt.hist(df['costheta_X_true'],density=True)
-bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
-plt.close()
 
