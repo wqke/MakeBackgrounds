@@ -27,7 +27,7 @@ frac_fit['Bu2DststDsst']=0.416*8e-3/(5e-4+0.0177+8e-3)
 B+->D1(2420)0 Ds*+ : B -> D* Ds  =8e-3
 B+->D1(2420)0 Ds+ : B -> D* Ds*  =0.0177
 B+->D1(2420)0 Ds1(2460)+ : B -> D* Ds1  =5e-4
-"""
+"""   
 #SUB MODES
 #branching fractions
 BF={}
@@ -438,7 +438,8 @@ totalvalues=[values0,values1,values2,values3,values4,values5]
 binnumber=100
 
 fractions=[frac_fit['Bd2DstDs1'],frac_fit['Bd2DstDs'],frac_fit['Bd2DstDsst'],frac_fit['Bu2DststDs'],frac_fit['Bu2DststDsst'],frac_fit['Bu2DststDs1']]
-
+labels=[r'$B^0 \rightarrow D^{*-} D_{s1}(2460)^+$',r'$B^0 \rightarrow D^{*-} D_s^+$',r'$B^0 \rightarrow D^{*-} D_s^{*+}$',r'$B^+ \rightarrow D_1(2420)^0D_s^+$',r'$B^+ \rightarrow D_1(2420)^0D_s^{*+}$',r'$B^+ \rightarrow D_1(2420)^0D_{s1}(2460)^+$']
+"""
 for i in range(4):
   TOTAL_HEIGHTS=[0]*binnumber
   for k in range(6):
@@ -463,7 +464,31 @@ for i in range(4):
   plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D_s$ X)')
   plt.savefig(filenames[i]+'_total.pdf')
   plt.close()
-  
+"""
 
-
-
+for i in range(4):
+  all_bin_heights=[[0]*binnumber]
+  TOTAL_HEIGHTS=[0]*binnumber
+  for k in range(6):
+    fig, ax = plt.subplots()
+    bin_heights, bin_borders, _=ax.hist(totalvalues[k][0][:,i], weights=totalweights[k][0][:,i], histtype='step',bins=binnumber, range=ranges[i])
+    bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
+    plt.close()
+    for j in range(1,len(weights3)):
+      bin_heights_new, bin_borders_new, _=ax.hist(totalvalues[k][j][:,i], weights=totalweights[k][j][:,i], histtype='step',bins=binnumber, range=ranges[i])
+      bin_heights=addlist(bin_heights,bin_heights_new)
+      plt.close()
+    bin_heights=timeslist(bin_heights,1/(sum(bin_heights)))
+    all_bin_heights.append(bin_heights)
+    TOTAL_HEIGHTS=addlist(timeslist(bin_heights,fractions[k+1]),TOTAL_HEIGHTS)
+    plt.bar(bin_centers,all_bin_heights[k+1],width=bin_centers[1]-bin_centers[0],label=labels[k],bottom=all_bin_heights[k])
+  #plt.ylim(bottom=0)
+  plt.legend()
+  plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D_s$ X)')
+  plt.savefig(filenames[i]+'_bar.pdf')
+  plt.close()
+  plt.close()
+  plt.close()
+  plt.close()  
+  plt.close()
+  plt.close()
