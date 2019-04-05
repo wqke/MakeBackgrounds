@@ -423,9 +423,9 @@ def addlist(a,b):
 ranges=[[0.,13.],[-1.,1.],[-np.pi,np.pi],[-1.,1.]]
 filenames=['q2','costhetaL','chi','costhetaD']
 titles=[r'$q^2$',r'cos$(\theta_L)$',r'$\chi$',r'cos$(\theta_D)$']
-totalfile=[file,file1,file2,file3,file4,file5]
+totalfile=[files,files1,files2,files3,files4,files5]
 totalweights=[df_weights0,df_weights1,df_weights2,df_weights3,df_weights4,df_weights5]
-
+totalvalues=[values0,values1,values2,values3,values4,values5]
 binnumber=100
 
 
@@ -433,11 +433,11 @@ for i in range(4):
   for k in range(6):
     TOTAL_HEIGHTS=[0]*binnumber
     fig, ax = plt.subplots()
-    bin_heights, bin_borders, _=ax.hist(values3[0][:,i], weights=totalweights[k][0][:,i], histtype='step',bins=binnumber, range=ranges[i])
+    bin_heights, bin_borders, _=ax.hist(totalvalues[k][0][:,i], weights=totalweights[k][0][:,i], histtype='step',bins=binnumber, range=ranges[i])
     bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
     plt.close()
     for j in range(1,len(weights3)):
-      bin_heights_new, bin_borders_new, _=ax.hist(values3[j][:,i], weights=totalweights[k][j][:,i], histtype='step',bins=binnumber, range=ranges[i])
+      bin_heights_new, bin_borders_new, _=ax.hist(totalvalues[k][j][:,i], weights=totalweights[k][j][:,i], histtype='step',bins=binnumber, range=ranges[i])
       bin_heights=addlist(bin_heights,bin_heights_new)
       plt.close()
     TOTAL_HEIGHTS=addlist(TOTAL_HEIGHTS,bin_heights)
