@@ -420,18 +420,28 @@ def addlist(a,b):
     lis.append(a[i]+b[i])
   return lis
 
+def timeslist(a,fraction):
+  lis=[]
+  for i in range(len(a)):
+    lis.append(a[i]*fraction)
+  return lis
+
+
+
 ranges=[[0.,13.],[-1.,1.],[-np.pi,np.pi],[-1.,1.]]
 filenames=['q2','costhetaL','chi','costhetaD']
 titles=[r'$q^2$',r'cos$(\theta_L)$',r'$\chi$',r'cos$(\theta_D)$']
 totalfile=[files,files1,files2,files3,files4,files5]
 totalweights=[df_weights0,df_weights1,df_weights2,df_weights3,df_weights4,df_weights5]
 totalvalues=[values0,values1,values2,values3,values4,values5]
+
 binnumber=100
 
+fractions=[frac_fit['Bd2DstDs1'],frac_fit['Bd2DstDs'],frac_fit['Bd2DstDsst'],frac_fit['Bu2DststDs'],frac_fit['Bu2DststDsst'],frac_fit['Bu2DststDs1']]
 
 for i in range(4):
+  TOTAL_HEIGHTS=[0]*binnumber
   for k in range(6):
-    TOTAL_HEIGHTS=[0]*binnumber
     fig, ax = plt.subplots()
     bin_heights, bin_borders, _=ax.hist(totalvalues[k][0][:,i], weights=totalweights[k][0][:,i], histtype='step',bins=binnumber, range=ranges[i])
     bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
@@ -440,10 +450,17 @@ for i in range(4):
       bin_heights_new, bin_borders_new, _=ax.hist(totalvalues[k][j][:,i], weights=totalweights[k][j][:,i], histtype='step',bins=binnumber, range=ranges[i])
       bin_heights=addlist(bin_heights,bin_heights_new)
       plt.close()
-    TOTAL_HEIGHTS=addlist(TOTAL_HEIGHTS,bin_heights)
+      print 'THE HEIGHTS OF THIS SUB MODE :'
+      print bin_heights 
+    bin_heights=timeslist(bin_heights,1/(sum(bin_heights)))
+    print 'THE HEIGHTS OF THIS SUB MODE :'
+    print bin_heights 
+    TOTAL_HEIGHTS=addlist(timeslist(bin_heights,fractions[k]),TOTAL_HEIGHTS)
+    print 'THE SUM IS NOW :'
+    print TOTAL_HEIGHTS
   plt.scatter(bin_centers,TOTAL_HEIGHTS,marker='.')
   plt.ylim(bottom=0)  
-  plt.title(titles[i]+r'B $\rightarrow$ $D^*$ $D_s$ X')
+  plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D_s$ X)')
   plt.savefig(filenames[i]+'_total.pdf')
   plt.close()
   
