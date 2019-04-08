@@ -12,16 +12,15 @@ from ROOT import TFile,TChain,TTree
 from uncertainties import *
 
 #D* Ds X background
-#Fractions defined relative to D* Ds*(=1)
+#Fractions defined so that the sum=1
 #Fit values
 frac_fit={}
-frac_fit['Bd2DstDs']=0.594
-frac_fit['Bd2DstDsst']=1.
-frac_fit['Bd2DstDs1']=0.365
+frac_fit['Bu2DstD0K0']=1.
+frac_fit['Bu2DstDst0K0']=0.365
+frac_fit['Bd2DstD0K']=0.594
+frac_fit['Bd2DstDst0K']=0.416*5e-4/(5e-4+0.0177+8e-3) 
+frac_fit['Bd2DstDstK0']=0.416*0.0177/(5e-4+0.0177+8e-3)
 
-frac_fit['Bu2DststDs1']=0.416*5e-4/(5e-4+0.0177+8e-3)   #fraction of the sum x relative branching fractions
-frac_fit['Bu2DststDs']=0.416*0.0177/(5e-4+0.0177+8e-3)
-frac_fit['Bu2DststDsst']=0.416*8e-3/(5e-4+0.0177+8e-3)
 """
 *The BF are taken to be proportional to the following decays
 B+->D1(2420)0 Ds*+ : B -> D* Ds  =8e-3
@@ -72,7 +71,7 @@ BF['Dplus']['3pipi0']=0.0111
 #D0 ->K-pi+pi+pi-
 BF['D0']['K3pi']=0.0811
 #D0 ->K-pi+pi+pi-pi0
-BF['D0']['K4pi']=0.042
+BF['D0']['Kpipi0']=0.042
 
 ###D*0 decays
 #D*0 -> Ks0 3pi
@@ -133,11 +132,6 @@ BF['Dsplus']['etappi_rhogamma']=BF['Dsplus']['etappi'] * BF['etap']['rhogamma'] 
 BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] * BF['eta']['3pi'] * BF['rhoplus']['2pi']
 BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
 
-
-
-
-
-
 ############PLOT THE TOTAL HISTOGRAMS############
 
 #Bu2DstD0K0
@@ -145,32 +139,24 @@ files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstD0K0/k3p
        '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstD0K0/k3pipi0_LHCb_Total/model_vars.root']
 
 weights0=[]
-values0=[]
-df_weights0=[]
 for file in files:
-  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
-  weight=BF['Dstmin']['D0pi'] * BF['Ds1'][components[0]]
-  if components[0]=='dsgamma':
-    if len(components)==2:
-      weight=weight*BF['Dsplus'][components[1]]
-    if len(components)==3:
-      weight=weight*BF['Dsplus'][components[1]+'_'+components[2]]
-  elif components[0]=='dsstpi0': 
-    if len(components)==3:
-      weight=weight*BF['Dsst']['dsgamma']*BF['Dsplus'][components[2]]
-    if len(components)==4:
-      weight=weight*BF['Dsst']['dsgamma']*BF['Dsplus'][components[2]+'_'+components[3]]
+  weight=BF['D0'][components[0]]
   weights0.append(weight)
-  values0.append(df.values)
-  df_weights0.append(np.ones_like(df.values) )
+
 sum0=sum(weights0)
 for i in range(len(weights0)):
   weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
-for i in range(len(weights0)):
-  df_weights0[i]=df_weights0[i]*weights0[i]
 
+DF=root_pandas.read_root(files[0],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
+DF=DF.sample(n=int(len(DF)*weights0[0]*frac_fit['Bu2DstD0K0']))
+for i in range(1,len(files)):
+  df=root_pandas.read_root(files[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
+  df=df.sample(n=int(len(df)*weights0[i]*frac_fit['Bu2DstD0K0']))
+  DF=pd.concat([DF, df], ignore_index=True)
+
+  
 #Bu2DstDst0K0
 files1=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstDst0K0/d0gamma_k3pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstDst0K0/d0gamma_k3pipi0_LHCb_Total/model_vars.root',
@@ -178,57 +164,39 @@ files1=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstDst0K0/
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstDst0K0/d0pi0_k3pipi0_LHCb_Total/model_vars.root']
 
 weights1=[]
-values1=[]
-df_weights1=[]
 for file in files1:
-  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
-  if len(components)==1:
-    weight=BF['Dstmin']['D0pi']* BF['Dsplus'][components[0]]
-  if len(components)==2:
-    weight=BF['Dstmin']['D0pi'] * BF['Dsplus'][components[0]+'_'+components[1]]
+  weight=BF['Dst0'][components[0]] * BF['D0'][components[1]]
   weights1.append(weight)
-  values1.append(df.values)
-  df_weights1.append(np.ones_like(df.values) )
 
 sum1=sum(weights1)
 for i in range(len(weights1)):
   weights1[i]=weights1[i]/sum1   #define the weight with regard to the sum (the proportion)
 
-for i in range(len(weights1)):
-  df_weights1[i]=df_weights1[i]*weights1[i]
-
-
-
+for i in range(len(files1)):
+  df=root_pandas.read_root(files1[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
+  df=df.sample(n=int(len(df)*weights1[i]*frac_fit['Bu2DstDst0K0']))
+  DF=pd.concat([DF, df], ignore_index=True)
 
 #Bd2DstD0K
 files2=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstD0K/k3pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstD0K/k3pipi0_LHCb_Total/model_vars.root']
 
-
 weights2=[]
-values2=[]
-df_weights2=[]
 for file in files2:
-  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
-  weight=BF['Dstmin']['D0pi']* BF['Dsst'][components[0]]
-  if len(components)==2:
-    weight=weight*BF['Dsplus'][components[1]]
-  if len(components)==3:
-    weight=weight * BF['Dsplus'][components[1]+'_'+components[2]]
-  weights2.append(weight)
-  values2.append(df.values)
-  df_weights2.append(np.ones_like(df.values) )
+  weight=BF['D0'][components[0]]
 
 sum2=sum(weights2)
 for i in range(len(weights2)):
   weights2[i]=weights2[i]/sum2   #define the weight with regard to the sum (the proportion)
 
-for i in range(len(weights2)):
-  df_weights2[i]=df_weights2[i]*weights2[i]
+for i in range(len(files2)):
+  df=root_pandas.read_root(files2[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
+  df=df.sample(n=int(len(df)*weights2[i]*frac_fit['Bd2DstD0K']))
+  DF=pd.concat([DF, df], ignore_index=True)
 
 #Bd2DstDst0K
 files3=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDst0K/d0gamma_k3pi_LHCb_Total/model_vars.root',
@@ -238,108 +206,56 @@ files3=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDst0K/d
 
 
 weights3=[]
-values3=[]
-df_weights3=[]
 for file in files3:
-  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
-  weight=BF['D10']['dstpiplus']   #=1.
-  if len(components)==1:
-    weight=weight * BF['Dsplus'][components[0]]
-  if len(components)==2:
-    weight=weight * BF['Dsplus'][components[0]+'_'+components[1]]
+  weight=BF['Dst0'][components[0]] * BF['D0'][components[1]  
   weights3.append(weight)
-  values3.append(df.values)
-  df_weights3.append(np.ones_like(df.values) )
-
+  
 sum3=sum(weights3)
 for i in range(len(weights3)):
   weights3[i]=weights3[i]/sum3   #define the weight with regard to the sum (the proportion)
 
-for i in range(len(weights3)):
-  df_weights3[i]=df_weights3[i]*weights3[i]
+for i in range(len(files3)):
+  df=root_pandas.read_root(files3[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
+  df=df.sample(n=int(len(df)*weights3[i]*frac_fit['Bd2DstDst0K']))
+  DF=pd.concat([DF, df], ignore_index=True)
+
+
 
 #Bd2DstDstK0
 files4=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDstK0/k3pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDstK0/k3pipi0_LHCb_Total/model_vars.root']
-
+  
 weights4=[]
-values4=[]
-df_weights4=[]
 for file in files4:
-  df=root_pandas.read_root(file,columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'],key='DecayTree')
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
-  weight=BF['D10']['dstpiplus']  * BF['Dsst'][components[0]]
-  if len(components)==2:
-    weight=weight * BF['Dsplus'][components[1]]
-  if len(components)==3:
-    weight=weight * BF['Dsplus'][components[1]+'_'+components[2]]
-  weights4.append(weight)
-  values4.append(df.values)
-  df_weights4.append(np.ones_like(df.values) )
+  weight=BF['D0'][components[0]]
 
 sum4=sum(weights4)
 for i in range(len(weights4)):
   weights4[i]=weights4[i]/sum4   #define the weight with regard to the sum (the proportion)
 
-for i in range(len(weights4)):
-  df_weights4[i]=df_weights4[i]*weights4[i]
-  ########
-#df_merged = pd.concat([df, df2], ignore_index=True)
-#df_merged_weights = np.ones_like(df_merged.values) / len(df_merged)
-def addlist(a,b):
-  lis=[]
-  for i in range(len(a)):
-    lis.append(a[i]+b[i])
-  return lis
+for i in range(len(files4)):
+  df=root_pandas.read_root(files4[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
+  df=df.sample(n=int(len(df)*weights4[i]*frac_fit['Bd2DstDstK0']))
+  DF=pd.concat([DF, df], ignore_index=True)
+  
 
-def timeslist(a,fraction):
-  lis=[]
-  for i in range(len(a)):
-    lis.append(a[i]*fraction)
-  return lis
-
-
-
-ranges=[[0.,13.],[-1.,1.],[-np.pi,np.pi],[-1.,1.]]
-filenames=['q2','costhetaL','chi','costhetaD']
-titles=[r'$q^2$',r'cos$(\theta_L)$',r'$\chi$',r'cos$(\theta_D)$']
-totalfile=[files,files1,files2,files3,files4,files5]
-totalweights=[df_weights0,df_weights1,df_weights2,df_weights3,df_weights4,df_weights5]
-totalvalues=[values0,values1,values2,values3,values4,values5]
-
+                                              
+                                              ### HISTOGRAMS ###
+ranges=[[-1.,1.],[-np.pi,np.pi],[0.,2.],[0.,13.],[-1.,1.]]
+filenames=['costheta_D_reco','chi_reco','Tau_life_reco','q2_reco','costheta_L_reco']
+titles=[r'cos$(\theta_D)$',r'$\chi$',r'$\tau$ life',r'$q^2$',r'cos$(\theta_L)$']
 binnumber=100
+                                              
+DF.to_root('background.root', key='DecayTree')
 
-fractions=[frac_fit['Bd2DstDs1'],frac_fit['Bd2DstDs'],frac_fit['Bd2DstDsst'],frac_fit['Bu2DststDs'],frac_fit['Bu2DststDsst'],frac_fit['Bu2DststDs1']]
-labels=[r'$B^0 \rightarrow D^{*-} D_{s1}(2460)^+$',r'$B^0 \rightarrow D^{*-} D_s^+$',r'$B^0 \rightarrow D^{*-} D_s^{*+}$',r'$B^+ \rightarrow D_1(2420)^0D_s^+$',r'$B^+ \rightarrow D_1(2420)^0D_s^{*+}$',r'$B^+ \rightarrow D_1(2420)^0D_{s1}(2460)^+$']
-
-for i in range(4):
-  all_bin_heights=[[0]*binnumber]
-  TOTAL_HEIGHTS=[0]*binnumber
-  for k in range(6):
-    fig, ax = plt.subplots()
-    bin_heights, bin_borders, _=ax.hist(totalvalues[k][0][:,i], weights=totalweights[k][0][:,i], histtype='step',bins=binnumber, range=ranges[i])
-    bin_centers = bin_borders[:-1] + np.diff(bin_borders) / 2
-    plt.close()
-    for j in range(1,len(weights3)):
-      bin_heights_new, bin_borders_new, _=ax.hist(totalvalues[k][j][:,i], weights=totalweights[k][j][:,i], histtype='step',bins=binnumber, range=ranges[i])
-      bin_heights=addlist(bin_heights,bin_heights_new)
-      plt.close()
-    bin_heights=timeslist(bin_heights,1/(sum(bin_heights)))
-    all_bin_heights.append(bin_heights)
-    TOTAL_HEIGHTS=addlist(timeslist(bin_heights,fractions[k+1]),TOTAL_HEIGHTS)
-plt.bar(bin_centers,all_bin_heights[k+1],width=bin_centers[1]-b
-in_centers[0],label=labels[k],bottom=all_bin_heights[k])
-  #plt.ylim(bottom=0)
-  plt.legend()
+for i in range(5):
+  plt.hist(DF[filenames[i]][~np.isnan(DF[filenames[i]])],histtype='step',bins=binnumber,range=ranges[i])
+  plt.ylim(bottom=0)  
   plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D_s$ X)')
-  plt.savefig(filenames[i]+'_bar.pdf')
-  plt.close()
-  plt.close()
-  plt.close()
-  plt.close()  
-  plt.close()
-  plt.close()
+  plt.savefig(filenames[i]+'_total.pdf')
+plt.close()
 
