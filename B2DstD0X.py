@@ -188,7 +188,7 @@ for file in files2:
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
   weight=BF['D0'][components[0]]
-
+  weights2.append(weight)
 sum2=sum(weights2)
 for i in range(len(weights2)):
   weights2[i]=weights2[i]/sum2   #define the weight with regard to the sum (the proportion)
@@ -232,7 +232,7 @@ for file in files4:
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
   weight=BF['D0'][components[0]]
-
+  weights4.append(weight)
 sum4=sum(weights4)
 for i in range(len(weights4)):
   weights4[i]=weights4[i]/sum4   #define the weight with regard to the sum (the proportion)
