@@ -11,20 +11,14 @@ from root_numpy import root2array, rec2array, tree2array
 from ROOT import TFile,TChain,TTree
 from uncertainties import *
 
-#D* D+ X background
+
 #Fractions defined with regard to the biggest one. B+ and B0 are assumed to have the same amount (so we directly use the branching fractions)
 #Fit values
 frac_fit={}
-frac_fit['Bd2DstDK0']=2.47e-3/2.47e-3
-frac_fit['Bu2DstDK']=6.3e-4/2.47e-3
+frac_fit['2420']=3.03e-3/3.03e-3
+frac_fit['2460']=1.01e-3/3.03e-3
 
 
-"""
-*The BF are taken to be proportional to the following decays
-B+->D1(2420)0 Ds*+ : B -> D* Ds  =8e-3
-B+->D1(2420)0 Ds+ : B -> D* Ds*  =0.0177
-B+->D1(2420)0 Ds1(2460)+ : B -> D* Ds1  =5e-4
-"""   
 #SUB MODES
 #branching fractions
 BF={}
@@ -41,7 +35,7 @@ BF['rho0']={}
 BF['rhoplus']={}
 BF['omega']={}
 BF['Dsplus']={}
-
+BF['tau']={}
 
 ###Ds1(2460) decays
 #Ds1(2460)->Ds+ gamma
@@ -93,6 +87,12 @@ BF['rho0']['2pi']=1.
 BF['rhoplus']['2pi']=1.
 ###omega decay : omega ->pi+pi-pi0
 BF['omega']['3pi']=0.892
+###tau decays 
+BF['tau']['3pi']=9.31e-2
+BF['tau']['3pipi0']=4.62e-2
+
+
+
 
 ###Ds+ decays
 #Ds+->eta pi+
@@ -133,16 +133,16 @@ BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] 
 
 ############PLOT THE TOTAL HISTOGRAMS############
 
-#Bd2DstDK0
-files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDK0/3pipi0_LHCb_Total/model_vars.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstDK0/ks3pi_LHCb_Total/model_vars.root']
-
+#Bu2DststTauNu
+files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2420_3pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2420_3pipi0_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2460_3pipi0_LHCb_Total/model_vars.root']
 
 weights0=[]
 for file in files:
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
-  weight=BF['Dplus'][components[0]]
+  weight=frac_fit[components[0]] * BF['tau'][components[1]]
   weights0.append(weight)
 
 sum0=sum(weights0)
@@ -150,33 +150,13 @@ for i in range(len(weights0)):
   weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
 DF=root_pandas.read_root(files[0],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-DF=DF.sample(n=int(len(DF)*weights0[0]*frac_fit['Bd2DstDK0']))
+DF=DF.sample(n=int(len(DF)*weights0[0]))
 for i in range(1,len(files)):
   df=root_pandas.read_root(files[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights0[i]*frac_fit['Bd2DstDK0']))
+  df=df.sample(n=int(len(df)*weights0[i]))
   DF=pd.concat([DF, df], ignore_index=True)
 
 
-
-#Bu2DstDK
-files1=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstDK/3pipi0_LHCb_Total/model_vars.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DstDK/ks3pi_LHCb_Total/model_vars.root']
-
-weights1=[]
-for file in files1:
-  components=(file.split('/')[-2]).split('_')
-  components=components[:-2]   #extract the sub mode from the file name
-  weight=BF['Dplus'][components[0]]
-  weights1.append(weight)
-
-sum1=sum(weights1)
-for i in range(len(weights1)):
-  weights1[i]=weights1[i]/sum1   #define the weight with regard to the sum (the proportion)
-
-for i in range(len(files1)):
-  df=root_pandas.read_root(files1[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights1[i]*frac_fit['Bu2DstDK']))
-  DF=pd.concat([DF, df], ignore_index=True)
 
 
                                        
@@ -186,11 +166,13 @@ filenames=['costheta_D_reco','chi_reco','Tau_life_reco','q2_reco','costheta_L_re
 titles=[r'cos$(\theta_D)$',r'$\chi$',r'$\tau$ life',r'$q^2$',r'cos$(\theta_L)$']
 binnumber=100
                                               
-DF.to_root('B2DstDplusX.root', key='DecayTree')
+DF.to_root('prompt.root', key='DecayTree')
 
 for i in range(5):
   plt.hist(DF[filenames[i]][~np.isnan(DF[filenames[i]])],histtype='step',bins=binnumber,range=ranges[i])
   plt.ylim(bottom=0)  
-  plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D^+$ X)')
-  plt.savefig(filenames[i]+'_DstDplusX.pdf')
+  plt.title(titles[i]+'  (prompt)')
+  plt.savefig(filenames[i]+'_prompt.pdf')
 plt.close()
+
+
