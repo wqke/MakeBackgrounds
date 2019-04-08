@@ -209,7 +209,7 @@ weights3=[]
 for file in files3:
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name
-  weight=BF['Dst0'][components[0]] * BF['D0'][components[1]  
+  weight=BF['Dst0'][components[0]] * BF['D0'][components[1]]
   weights3.append(weight)
   
 sum3=sum(weights3)
