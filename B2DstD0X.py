@@ -11,7 +11,7 @@ from root_numpy import root2array, rec2array, tree2array
 from ROOT import TFile,TChain,TTree
 from uncertainties import *
 
-#D* Ds X background
+#D* D0 X background
 #Fractions defined with regard to the biggest one. B+ and B0 are assumed to have the same amount (so we directly use the branching fractions)
 #Fit values
 frac_fit={}
