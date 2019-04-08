@@ -69,9 +69,9 @@ BF['Dplus']['3pipi0']=0.0111
 
 ###D0 decays
 #D0 ->K-pi+pi+pi-
-BF['D0']['K3pi']=0.0811
+BF['D0']['k3pi']=0.0811
 #D0 ->K-pi+pi+pi-pi0
-BF['D0']['Kpipi0']=0.042
+BF['D0']['kpipi0']=0.042
 
 ###D*0 decays
 #D*0 -> Ks0 3pi
