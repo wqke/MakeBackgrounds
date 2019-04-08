@@ -12,14 +12,14 @@ from ROOT import TFile,TChain,TTree
 from uncertainties import *
 
 #D* Ds X background
-#Fractions defined so that the sum=1
+#Fractions defined with regard to the biggest one. B+ and B0 are assumed to have the same amount (so we directly use the branching fractions)
 #Fit values
 frac_fit={}
-frac_fit['Bu2DstD0K0']=1.
-frac_fit['Bu2DstDst0K0']=0.365
-frac_fit['Bd2DstD0K']=0.594
-frac_fit['Bd2DstDst0K']=0.416*5e-4/(5e-4+0.0177+8e-3) 
-frac_fit['Bd2DstDstK0']=0.416*0.0177/(5e-4+0.0177+8e-3)
+frac_fit['Bu2DstD0K0']=3.8e-3/1.06e-2
+frac_fit['Bu2DstDst0K0']=9.2e-3/1.06e-2
+frac_fit['Bd2DstD0K']=2.47e-3/1.06e-2
+frac_fit['Bd2DstDst0K']= 1.06e-2/1.06e-2
+frac_fit['Bd2DstDstK0']=8.1e-3/1.06e-2
 
 """
 *The BF are taken to be proportional to the following decays
@@ -245,17 +245,17 @@ for i in range(len(files4)):
 
                                               
                                               ### HISTOGRAMS ###
-ranges=[[-1.,1.],[-np.pi,np.pi],[0.,2.],[0.,13.],[-1.,1.]]
+ranges=[[-1.,1.],[-np.pi,np.pi],[0.,6.],[0.,13.],[-1.,1.]]
 filenames=['costheta_D_reco','chi_reco','Tau_life_reco','q2_reco','costheta_L_reco']
 titles=[r'cos$(\theta_D)$',r'$\chi$',r'$\tau$ life',r'$q^2$',r'cos$(\theta_L)$']
 binnumber=100
                                               
-DF.to_root('background.root', key='DecayTree')
+DF.to_root('B2DstD0X.root', key='DecayTree')
 
 for i in range(5):
   plt.hist(DF[filenames[i]][~np.isnan(DF[filenames[i]])],histtype='step',bins=binnumber,range=ranges[i])
   plt.ylim(bottom=0)  
-  plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D_s$ X)')
+  plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D^0$ X)')
   plt.savefig(filenames[i]+'_total.pdf')
-plt.close()
+  plt.close()
 
