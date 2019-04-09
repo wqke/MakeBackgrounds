@@ -136,7 +136,8 @@ BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] 
 #Bu2DststTauNu
 files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2420_3pi_LHCb_Total/model_vars.root',
 '/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2420_3pipi0_LHCb_Total/model_vars.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2460_3pipi0_LHCb_Total/model_vars.root']
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2460_3pipi0_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2460_3pi_LHCb_Total/model_vars.root']
 
 weights0=[]
 for file in files:
