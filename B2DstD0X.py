@@ -71,7 +71,7 @@ BF['Dplus']['3pipi0']=0.0111
 #D0 ->K-pi+pi+pi-
 BF['D0']['k3pi']=0.0811
 #D0 ->K-pi+pi+pi-pi0
-BF['D0']['kpipi0']=0.042
+BF['D0']['k3pipi0']=0.042
 
 ###D*0 decays
 #D*0 -> Ks0 3pi
@@ -150,10 +150,10 @@ for i in range(len(weights0)):
   weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
 DF=root_pandas.read_root(files[0],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-DF=DF.sample(n=int(len(DF)*weights0[0]*frac_fit['Bu2DstD0K0']))
+DF=DF.sample(n=int(2000000*weights0[0]*frac_fit['Bu2DstD0K0']))
 for i in range(1,len(files)):
   df=root_pandas.read_root(files[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights0[i]*frac_fit['Bu2DstD0K0']))
+  df=df.sample(n=int(2000000*weights0[i]*frac_fit['Bu2DstD0K0']))
   DF=pd.concat([DF, df], ignore_index=True)
 
   
@@ -176,7 +176,7 @@ for i in range(len(weights1)):
 
 for i in range(len(files1)):
   df=root_pandas.read_root(files1[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights1[i]*frac_fit['Bu2DstDst0K0']))
+  df=df.sample(n=int(2000000*weights1[i]*frac_fit['Bu2DstDst0K0']))
   DF=pd.concat([DF, df], ignore_index=True)
 
 #Bd2DstD0K
@@ -195,7 +195,7 @@ for i in range(len(weights2)):
 
 for i in range(len(files2)):
   df=root_pandas.read_root(files2[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights2[i]*frac_fit['Bd2DstD0K']))
+  df=df.sample(n=int(2000000*weights2[i]*frac_fit['Bd2DstD0K']))
   DF=pd.concat([DF, df], ignore_index=True)
 
 #Bd2DstDst0K
@@ -218,7 +218,7 @@ for i in range(len(weights3)):
 
 for i in range(len(files3)):
   df=root_pandas.read_root(files3[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights3[i]*frac_fit['Bd2DstDst0K']))
+  df=df.sample(n=int(2000000*weights3[i]*frac_fit['Bd2DstDst0K']))
   DF=pd.concat([DF, df], ignore_index=True)
 
 
@@ -239,7 +239,7 @@ for i in range(len(weights4)):
 
 for i in range(len(files4)):
   df=root_pandas.read_root(files4[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights4[i]*frac_fit['Bd2DstDstK0']))
+  df=df.sample(n=int(2000000*weights4[i]*frac_fit['Bd2DstDstK0']))
   DF=pd.concat([DF, df], ignore_index=True)
   
 
