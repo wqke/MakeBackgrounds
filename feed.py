@@ -167,13 +167,13 @@ filenames=['costheta_D_reco','chi_reco','Tau_life_reco','q2_reco','costheta_L_re
 titles=[r'cos$(\theta_D)$',r'$\chi$',r'$\tau$ life',r'$q^2$',r'cos$(\theta_L)$']
 binnumber=100
                                               
-DF.to_root('prompt.root', key='DecayTree')
+DF.to_root('feed.root', key='DecayTree')
 
 for i in range(5):
   plt.hist(DF[filenames[i]][~np.isnan(DF[filenames[i]])],histtype='step',bins=binnumber,range=ranges[i])
   plt.ylim(bottom=0)  
-  plt.title(titles[i]+'  (prompt)')
-  plt.savefig(filenames[i]+'_prompt.pdf')
+  plt.title(titles[i]+'  (feed-down)')
+  plt.savefig(filenames[i]+'_feed.pdf')
 plt.close()
 
 
