@@ -151,10 +151,10 @@ for i in range(len(weights0)):
   weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
 DF=root_pandas.read_root(files[0],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-DF=DF.sample(n=int(len(DF)*weights0[0]))
+DF=DF.sample(n=int(2000000*weights0[0]))
 for i in range(1,len(files)):
   df=root_pandas.read_root(files[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights0[i]))
+  df=df.sample(n=int(2000000*weights0[i]))
   DF=pd.concat([DF, df], ignore_index=True)
 
 
