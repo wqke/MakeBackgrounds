@@ -30,10 +30,10 @@ files={'signal':'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2Ds
       'B2DstDsX':'/home/ke/graphs/B2DstDsX.root'}
 
 DF=root_pandas.read_root(files[names[0]],columns=['q2_reco','Tau_life_reco'])
-DF=DF.sample(n=int(100000*frac[names[0]]))
+DF=DF.sample(n=int(2000000*frac[names[0]]))
 for i in range(1,4):
   df=root_pandas.read_root(files[names[i]],columns=['q2_reco','Tau_life_reco'])
-  df=df.sample(n=int(100000*frac[names[i]]))
+  df=df.sample(n=int(2000000*frac[names[i]]))
   DF=pd.concat([DF, df], ignore_index=True)
 plt.hist(DF['q2_reco'][~np.isnan(DF['q2_reco'])],histtype='step',range=[0.,13.],bins=100)
 plt.title(r'$q^2$ reco')
