@@ -19,12 +19,7 @@ frac_fit['Bd2DstDK0']=2.47e-3/2.47e-3
 frac_fit['Bu2DstDK']=6.3e-4/2.47e-3
 
 
-"""
-*The BF are taken to be proportional to the following decays
-B+->D1(2420)0 Ds*+ : B -> D* Ds  =8e-3
-B+->D1(2420)0 Ds+ : B -> D* Ds*  =0.0177
-B+->D1(2420)0 Ds1(2460)+ : B -> D* Ds1  =5e-4
-"""   
+  
 #SUB MODES
 #branching fractions
 BF={}
@@ -150,10 +145,10 @@ for i in range(len(weights0)):
   weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
 DF=root_pandas.read_root(files[0],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-DF=DF.sample(n=int(len(DF)*weights0[0]*frac_fit['Bd2DstDK0']))
+DF=DF.sample(n=int(2000000*weights0[0]*frac_fit['Bd2DstDK0']))
 for i in range(1,len(files)):
   df=root_pandas.read_root(files[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights0[i]*frac_fit['Bd2DstDK0']))
+  df=df.sample(n=int(2000000*weights0[i]*frac_fit['Bd2DstDK0']))
   DF=pd.concat([DF, df], ignore_index=True)
 
 
@@ -175,7 +170,7 @@ for i in range(len(weights1)):
 
 for i in range(len(files1)):
   df=root_pandas.read_root(files1[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights1[i]*frac_fit['Bu2DstDK']))
+  df=df.sample(n=int(2000000*weights1[i]*frac_fit['Bu2DstDK']))
   DF=pd.concat([DF, df], ignore_index=True)
 
 
