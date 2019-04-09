@@ -11,14 +11,6 @@ from root_numpy import root2array, rec2array, tree2array
 from ROOT import TFile,TChain,TTree
 from uncertainties import *
 
-
-#Fractions defined with regard to the biggest one. B+ and B0 are assumed to have the same amount (so we directly use the branching fractions)
-#Fit values
-frac_fit={}
-frac_fit['2420']=3.03e-3/3.03e-3
-frac_fit['2460']=1.01e-3/3.03e-3
-
-
 #SUB MODES
 #branching fractions
 BF={}
@@ -131,19 +123,29 @@ BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] 
 BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
 
 
+#Fractions defined with regard to the biggest one. B+ and B0 are assumed to have the same amount (so we directly use the branching fractions)
+#Fit values
+frac={}
+frac['3pipi0']=1.76e-2/1.76e-2
+frac['4pi']=2.6e-3/1.76e-2
+frac['5pi']=4.7e-3/1.76e-2
+frac['omegapi']=2.46e-3*BF['omega']['3pi']/1.76e-2
+
+
+
+
 ############PLOT THE TOTAL HISTOGRAMS############
 
-#Bu2DststTauNu
-files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2420_3pi_LHCb_Total/model_vars.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2420_3pipi0_LHCb_Total/model_vars.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2460_3pipi0_LHCb_Total/model_vars.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bu2DststTauNu/2460_3pi_LHCb_Total/model_vars.root']
+files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/3pipi0_LHCb_Total/model.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/4pi_LHCb_Total/model.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/5pi_LHCb_Total/model.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/omegapi_LHCb_Total/model.root']
 
 weights0=[]
 for file in files:
   components=(file.split('/')[-2]).split('_')
   components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
-  weight=frac_fit[components[0]] * BF['tau'][components[1]]
+  weight=frac[components[0]]
   weights0.append(weight)
 
 sum0=sum(weights0)
@@ -151,10 +153,10 @@ for i in range(len(weights0)):
   weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
 DF=root_pandas.read_root(files[0],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-DF=DF.sample(n=int(len(DF)*weights0[0]))
+DF=DF.sample(n=int(2000000*weights0[0]))
 for i in range(1,len(files)):
   df=root_pandas.read_root(files[i],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco','Tau_life_reco'],key='DecayTree')
-  df=df.sample(n=int(len(df)*weights0[i]))
+  df=df.sample(n=int(2000000*weights0[i]))
   DF=pd.concat([DF, df], ignore_index=True)
 
 
@@ -162,7 +164,7 @@ for i in range(1,len(files)):
 
                                        
                                               ### HISTOGRAMS ###
-ranges=[[-1.,1.],[-np.pi,np.pi],[0.,6.],[0.,13.],[-1.,1.]]
+ranges=[[-1.,1.],[-np.pi,np.pi],[0.,2.],[0.,13.],[-1.,1.]]
 filenames=['costheta_D_reco','chi_reco','Tau_life_reco','q2_reco','costheta_L_reco']
 titles=[r'cos$(\theta_D)$',r'$\chi$',r'$\tau$ life',r'$q^2$',r'cos$(\theta_L)$']
 binnumber=100
