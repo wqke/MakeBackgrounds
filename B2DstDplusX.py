@@ -189,3 +189,60 @@ for i in range(5):
   plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D^+$ X)')
   plt.savefig(filenames[i]+'_DstDplusX.pdf')
   plt.close()
+
+  
+  #####################################non relevant
+
+bins=['0','1','2']
+files=['result_DstTauNu_0.root','result_DstTauNu_1.root','result_DstTauNu_2.root']
+for i in range(3):
+  df=root_pandas.read_root(files[i],key='data')
+  dg=root_pandas.read_root(files[i],key='fit_result')
+  costhetaD=df['costheta_D']
+  costhetaL=df['costheta_L']
+  chi=df['chi']
+  costhetaD=costhetaD[~np.isnan(costhetaD)]
+  costhetaL=costhetaL[~np.isnan(costhetaL)]
+  chi=chi[~np.isnan(chi)]
+  costhetaDf=dg['costheta_D']
+  costhetaLf=dg['costheta_L']
+  chif=dg['chi']
+  costhetaDf=costhetaDf[~np.isnan(costhetaDf)]
+  costhetaLf=costhetaLf[~np.isnan(costhetaLf)]
+  chif=chif[~np.isnan(chif)]
+  plt.hist(costhetaDf,histtype='step',label='fit result',density='True')
+  plt.hist(costhetaD,histtype='step',label='data',density='True')
+  plt.legend()
+  plt.title('costhetaD - bin '+bins[i])
+  plt.savefig('costhetaD_'+bins[i]+'.pdf')
+  plt.close()
+  plt.close()
+  plt.hist(costhetaLf,histtype='step',label='fit result',density='True')
+  plt.hist(costhetaL,histtype='step',label='data',density='True')
+  plt.legend()
+  plt.title('costhetaL - bin '+bins[i])
+  plt.savefig('costhetaL_'+bins[i]+'.pdf')
+  plt.close()
+  plt.close()
+  plt.hist(chif,histtype='step',label='fit result',density='True')
+  plt.hist(chi,histtype='step',label='data',density='True')
+  plt.legend()
+  plt.title('chi - bin '+bins[i])
+  plt.savefig('chi_'+bins[i]+'.pdf')
+  plt.close()
+  plt.close()
+  
+
+df=root_pandas.read_root('/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/3pi_all_Total/model_vars_weights.root',columns=['costheta_D_true','costheta_D_reco','w_I1c'],key='DecayTree')
+wI1c=df['w_I1c']
+true=df['costheta_D_true'] * df['costheta_D_true']
+reco=df['costheta_D_reco'] * df['costheta_D_reco']
+plt.hist(wI1c[~np.isnan(wI1c)],label=r'$w_{I1c}$',histtype='step',density=True,bins=50)
+plt.hist(true[~np.isnan(true)] * true[~np.isnan(true)],label=r'$cos(\theta_D)^2$ true',histtype='step',density=True,bins=50)
+plt.hist(reco[~np.isnan(reco)] * reco[~np.isnan(reco)],label=r'$cos(\theta_D)^2$ reco',histtype='step',density=True,bins=50)
+plt.legend()
+plt.savefig('wI1c.pdf')
+plt.close()
+plt.close()
+plt.close()
+
