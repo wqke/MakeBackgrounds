@@ -34,7 +34,11 @@ files={'signal':'/home/ke/graphs/signal.root',
       'feed':'/home/ke/graphs/feed.root',
       'prompt':'/home/ke/graphs/prompt.root'}
 
+M_B = 5.27963
+M_Dst = 2.01026
 
+q2_max = (M_B - M_Dst)**2
+q2_min = 0.
 
 histo=[]
 histo1=[]
@@ -43,13 +47,15 @@ histo3=[]
 qc_bin_vals = {}
 for i in range(5):
   df=root_pandas.read_root(files[names[i]],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'])
+  df = df.query("q2_reco>=q2_min and q2_reco<q2_max")
   df=df.sample(n=int(900000*frac[names[i]]))
   histo.append(df['q2_reco'][~np.isnan(df['q2_reco'])])
   histo1.append(df['costheta_L_reco'][~np.isnan(df['costheta_L_reco'])])
   histo2.append(df['costheta_D_reco'][~np.isnan(df['costheta_D_reco'])])
   histo3.append(df['chi_reco'][~np.isnan(df['chi_reco'])])
       
-bin_sample=root_pandas.read_root(files[names[5]],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'])      
+bin_sample=root_pandas.read_root(files[names[5]],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'])    
+bin_sample = bin_sample.query("q2_reco>=q2_min and q2_reco<q2_max")
 bin_sample=bin_sample.sample(n=int(900000*frac[names[5]]))
 histo.append(bin_sample['q2_reco'][~np.isnan(bin_sample['q2_reco'])])
 histo1.append(bin_sample['costheta_L_reco'][~np.isnan(bin_sample['costheta_L_reco'])])
