@@ -110,7 +110,29 @@ plt.savefig('TAUTOTAL.pdf')
 plt.close()
 """
 
+binning = []
+angle_bins = int((float(2000000)*1000.0*(1.0/8.)/50)**(1.0/3.0))
+var_type='reco'
+var_bins = {"costheta_D_%s" % var_type: angle_bins,
+        "costheta_L_%s" % var_type: angle_bins,
+        "chi_%s" % var_type: angle_bins,
+        "q2_%s" % var_type: q2_bins
+        }
 
+for b in ["costheta_D_%s" % var_type,"costheta_L_%s" % var_type,"chi_%s" % var_type]:
+  for i in range(0,var_bins["q2_%s" % var_type]):
+    print "%s %s" % (b,i)
+    bin_sample_temp = bin_sample.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1]))
+    qc = pd.qcut(bin_sample_temp[b], q=var_bins[b], precision=5)
+    qc_bins = qc.unique()
+    qc_bin_vals["%s_%s" % (b,i)] = []
+    for j in range(0,var_bins[b]):
+      qc_bin_vals["%s_%s" % (b,i)].append(qc_bins[j].left)
+      qc_bin_vals["%s_%s" % (b,i)].append(qc_bins[j].right)
+#Retain unique values then sort
+    qc_bin_vals["%s_%s" % (b,i)] = list(set(qc_bin_vals["%s_%s" % (b,i)]))
+    qc_bin_vals["%s_%s" % (b,i)].sort()
+    print qc_bin_vals["%s_%s" % (b,i)]
 
 
 
