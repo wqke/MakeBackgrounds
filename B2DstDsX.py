@@ -409,12 +409,12 @@ binnumber=100
 
 labels=[r'$B^0 \rightarrow D^{*-} D_{s1}(2460)^+$',r'$B^0 \rightarrow D^{*-} D_s^+$',r'$B^0 \rightarrow D^{*-} D_s^{*+}$',r'$B^+ \rightarrow D_1(2420)^0D_s^+$',r'$B^+ \rightarrow D_1(2420)^0D_s^{*+}$',r'$B^+ \rightarrow D_1(2420)^0D_{s1}(2460)^+$']
 
-DF.to_root('background.root', key='DecayTree')
+DF.to_root('Ds.root', key='DecayTree')
 
 for i in range(5):
   plt.hist(DF[filenames[i]][~np.isnan(DF[filenames[i]])],histtype='step',bins=100,range=ranges[i])
   plt.ylim(bottom=0)  
   plt.title(titles[i]+r'  (B $\rightarrow$ $D^*$ $D_s$ X)')
-  plt.savefig(filenames[i]+'_total.pdf')
+  plt.savefig(filenames[i]+'_Ds.pdf')
   plt.close()
   
