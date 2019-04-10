@@ -14,12 +14,12 @@ from uncertainties import *
 #Background+signal fractions difined wrt the most populated one (Ds mode)
 frac={}
 
-frac['signal']=1296/6835.
-frac['feed']=0.11*1296/6835.
-frac['B2DstDsX']=6835/6835.
-frac['B2DstD0X']=445/6835.
-frac['B2DstDplusX']=0.245*6835/6835.
-frac['prompt']=424/6835.
+frac['signal']=1296/1296.
+frac['feed']=0.11*1296/1296.
+frac['B2DstDsX']=6835/1296.
+frac['B2DstD0X']=445/1296.
+frac['B2DstDplusX']=0.245*6835/1296.
+frac['prompt']=424/1296.
 
 #Neglect at this stage prompt and feed-down (small fraction)
 #The signal is represented by B2Dsttaunu tau->3pinu purely
@@ -40,35 +40,56 @@ histo=[]
 histo1=[]
 histo2=[]
 histo3=[]
-
-for i in range(6):
+qc_bin_vals = {}
+for i in range(5):
   df=root_pandas.read_root(files[names[i]],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'])
-  df=df.sample(n=int(2000000*frac[names[i]]))
+  df=df.sample(n=int(900000*frac[names[i]]))
   histo.append(df['q2_reco'][~np.isnan(df['q2_reco'])])
   histo1.append(df['costheta_L_reco'][~np.isnan(df['costheta_L_reco'])])
   histo2.append(df['costheta_D_reco'][~np.isnan(df['costheta_D_reco'])])
   histo3.append(df['chi_reco'][~np.isnan(df['chi_reco'])])
-plt.hist(histo,stacked=True,range=[0.,11.],bins=8,label=labels,color=colors)
+      
+bin_sample=root_pandas.read_root(files[names[5]],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'])      
+bin_sample=bin_sample.sample(n=int(900000*frac[names[5]]))
+histo.append(bin_sample['q2_reco'][~np.isnan(bin_sample['q2_reco'])])
+histo1.append(bin_sample['costheta_L_reco'][~np.isnan(bin_sample['costheta_L_reco'])])
+histo2.append(bin_sample['costheta_D_reco'][~np.isnan(bin_sample['costheta_D_reco'])])
+histo3.append(bin_sample['chi_reco'][~np.isnan(bin_sample['chi_reco'])])
+
+for b in ["q2_reco"]:
+  print b
+  qc = pd.qcut(bin_sample[b], q=8, precision=5)
+  qc_bins = qc.unique()
+  qc_bin_vals[b] = []
+  for i in range(0,8):
+    qc_bin_vals[b].append(qc_bins[i].left)
+    qc_bin_vals[b].append(qc_bins[i].right)
+    #Retain unique values then sort
+    qc_bin_vals[b] = list(set(qc_bin_vals[b]))
+    qc_bin_vals[b].sort()
+    print qc_bin_vals[b]    
+      
+plt.hist(histo,stacked=True,range=[0.,11.],bins=qc_bin_vals["q2_reco"] ,label=labels,color=colors)
 plt.legend()
 plt.title(r'$q^2$ reco')
 plt.savefig('QTOTAL.pdf')
 plt.close()
 
-plt.hist(histo1,stacked=True,range=[-1.,1.],bins=8,label=labels,color=colors)
+plt.hist(histo1,stacked=True,range=[-1.,1.],bins=qc_bin_vals["q2_reco"],label=labels,color=colors)
 plt.legend()
 plt.title(r'$cos(\theta_L)$ reco')
 plt.savefig('COSTHETAL.pdf')
 plt.close()
 
 
-plt.hist(histo2,stacked=True,range=[-1.,1.],bins=8,label=labels,color=colors)
+plt.hist(histo2,stacked=True,range=[-1.,1.],bins=qc_bin_vals["q2_reco"],label=labels,color=colors)
 plt.legend()
 plt.title(r'$cos(\theta_D)$ reco')
 plt.savefig('COSTHETAD.pdf')
 plt.close()
 
 
-plt.hist(histo3,stacked=True,range=[-np.pi,np.pi],bins=8,label=labels,color=colors)
+plt.hist(histo3,stacked=True,range=[-np.pi,np.pi],bins=qc_bin_vals["q2_reco"],label=labels,color=colors)
 plt.legend()
 plt.title(r'$\chi$ reco')
 plt.savefig('CHI.pdf')
