@@ -47,16 +47,16 @@ histo3=[]
 qc_bin_vals = {}
 for i in range(5):
   df=root_pandas.read_root(files[names[i]],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'])
-  df = df.query("q2_reco>=q2_min and q2_reco<q2_max")
-  df=df.sample(n=int(900000*frac[names[i]]))
+  df = df.query("q2_reco>=0. and costheta_L_reco>=-1. and costheta_L_reco<1. and costheta_D_reco>=-1. and costheta_D_reco<1. chi_reco>=-np.pi and chi_reco<np.pi")
+  df=df.sample(n=int(2000000*frac[names[i]]))
   histo.append(df['q2_reco'][~np.isnan(df['q2_reco'])])
   histo1.append(df['costheta_L_reco'][~np.isnan(df['costheta_L_reco'])])
   histo2.append(df['costheta_D_reco'][~np.isnan(df['costheta_D_reco'])])
   histo3.append(df['chi_reco'][~np.isnan(df['chi_reco'])])
       
 bin_sample=root_pandas.read_root(files[names[5]],columns=['q2_reco','costheta_L_reco','costheta_D_reco','chi_reco'])    
-bin_sample = bin_sample.query("q2_reco>=q2_min and q2_reco<q2_max")
-bin_sample=bin_sample.sample(n=int(900000*frac[names[5]]))
+bin_sample = bin_sample.query("q2_reco>=0. and costheta_L_reco>=-1. and costheta_L_reco<1. and costheta_D_reco>=-1. and costheta_D_reco<1. chi_reco>=-np.pi and chi_reco<np.pi")
+bin_sample=bin_sample.sample(n=int(2000000*frac[names[5]]))
 histo.append(bin_sample['q2_reco'][~np.isnan(bin_sample['q2_reco'])])
 histo1.append(bin_sample['costheta_L_reco'][~np.isnan(bin_sample['costheta_L_reco'])])
 histo2.append(bin_sample['costheta_D_reco'][~np.isnan(bin_sample['costheta_D_reco'])])
