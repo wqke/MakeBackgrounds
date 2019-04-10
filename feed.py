@@ -174,6 +174,6 @@ for i in range(5):
   plt.ylim(bottom=0)  
   plt.title(titles[i]+'  (feed-down)')
   plt.savefig(filenames[i]+'_feed.pdf')
-plt.close()
+  plt.close()
 
 
