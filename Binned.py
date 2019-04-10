@@ -36,6 +36,7 @@ import pandas as pd
 import random
 import math
 
+
 def MakeHistogram(phsp, sample, bins, weights = None, normed = False) : 
   hist = np.histogramdd(sample, bins = bins, range = phsp.Bounds(), weights = weights, normed = normed )
   return hist[0]  # Only return the histogram itself, not the bin boundaries
