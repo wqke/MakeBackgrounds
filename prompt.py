@@ -136,10 +136,10 @@ frac['omegapi']=2.46e-3*BF['omega']['3pi']/1.76e-2
 
 ############PLOT THE TOTAL HISTOGRAMS############
 
-files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/3pipi0_LHCb_Total/model.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/4pi_LHCb_Total/model.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/5pi_LHCb_Total/model.root',
-'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/omegapi_LHCb_Total/model.root']
+files=['/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/3pipi0_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/4pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/5pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/B2Dst3piX/omegapi_LHCb_Total/model_vars.root']
 
 weights0=[]
 for file in files:
