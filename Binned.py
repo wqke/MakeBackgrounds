@@ -54,6 +54,7 @@ def HistogramNorm(hist) :
 def BinnedChi2(hist1, hist2, err) :
 	return tf.reduce_sum( ((hist1 - hist2)/err)**2 )
 
+
 if __name__ == "__main__" :
 
   #Read RapidSim signal sample for either 3pi mode or 3pipi0 mode
@@ -250,6 +251,7 @@ if __name__ == "__main__" :
 
     return pdf
 
+
   if(toy=="N"):
   	data_file_fit = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
   	data_sample_fit = read_root(data_file_fit,"DecayTree",columns=branch_names)
@@ -307,6 +309,7 @@ if __name__ == "__main__" :
     covmat.append(c)
     print result[i]
   	
+
     #Save covariance matrix
     results_dir = ""
     toy_suf = ""
@@ -360,8 +363,7 @@ if __name__ == "__main__" :
     print para
   
     tfa.WriteFitResults(result[i],"%s/result_%s_%s_%s_%s_q2_%s%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf))
-  
-    #Get final fit PDF
+      #Get final fit PDF
     fit_result = sess.run(fit_model(histos,i))
     
     #1D projections
@@ -421,7 +423,7 @@ if __name__ == "__main__" :
       y_min,y_max = ax.get_ylim()
       plt.ylim(0.0,y_max*1.05)
       plt.show()
-      
+
       if(toy=="N"):
         fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/%s_%s_%s_%s_%s_q2_%s.pdf' % (b,sub_mode,geom,var_type,num_sig,i))
     branch_names.append("q2_%s" % var_type)
