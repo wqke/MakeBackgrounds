@@ -429,6 +429,8 @@ if __name__ == "__main__" :
     branch_names.append("q2_%s" % var_type)
     
 
+   
+
     #Unrolled 1D plot of all bins
     fit_result_1d = fit_result.ravel()
     
@@ -493,4 +495,3 @@ if __name__ == "__main__" :
     plt.show()
     if(toy=="N"):
       fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_Hist_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
-
