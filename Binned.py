@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ==============================================================================
+# ===============================================================================
+
+import matplotlib
+matplotlib.use('Agg')  #fix python2 tkinter problem
 
 import tensorflow as tf
 import numpy as np
@@ -308,9 +311,9 @@ if __name__ == "__main__" :
     results_dir = ""
     toy_suf = ""
     if(toy=="N"):
-      results_dir = "results"
+      results_dir = "/home/ke/TensorFlowAnalysis/BinnedResult"
     else:
-      results_dir = "toys"
+      results_dir = "/home/ke/TensorFlowAnalysis/BinnedToys"
       toy_rand = random.randint(1,1e10)
       toy_suf = "_%s" % toy_rand
   	
@@ -420,11 +423,9 @@ if __name__ == "__main__" :
       plt.show()
       
       if(toy=="N"):
-        fig.savefig('figs/%s_%s_%s_%s_%s_q2_%s.pdf' % (b,sub_mode,geom,var_type,num_sig,i))
+        fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/%s_%s_%s_%s_%s_q2_%s.pdf' % (b,sub_mode,geom,var_type,num_sig,i))
     branch_names.append("q2_%s" % var_type)
     
-    
-
 
     #Unrolled 1D plot of all bins
     fit_result_1d = fit_result.ravel()
@@ -452,7 +453,7 @@ if __name__ == "__main__" :
     plt.tight_layout()
     plt.show()
     if(toy=="N"):
-      fig.savefig('figs/Fit_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
+      fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Fit_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
       
   		
     #Pull plot	
@@ -470,7 +471,7 @@ if __name__ == "__main__" :
     plt.tight_layout()
     plt.show()
     if(toy=="N"):
-      fig.savefig('figs/Pull_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
+      fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
   	
     #Histogram of the pull values with a fit
     fig,ax = plt.subplots(figsize=(7,7))
@@ -489,5 +490,5 @@ if __name__ == "__main__" :
     
     plt.show()
     if(toy=="N"):
-      fig.savefig('figs/Pull_Hist_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
+      fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_Hist_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
 
