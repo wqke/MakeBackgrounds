@@ -70,6 +70,16 @@ if __name__ == "__main__" :
   #Run a toy (Y/N)
   toy = sys.argv[5]
   
+ #background fractions
+  frac={}
+
+  frac['signal']=1296/1296.
+  frac['feed']=0.11*1296/1296.
+  frac['B2DstDsX']=6835/1296.
+  frac['B2DstD0X']=445/1296.
+  frac['B2DstDplusX']=0.245*6835/1296.
+  frac['prompt']=424/1296.
+	
   M_B = 5.27963
   M_Dst = 2.01026
   
@@ -119,13 +129,14 @@ if __name__ == "__main__" :
   #Read RapidSim sample used to determine bins
   print "Loading tree"
   bin_file = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
-  	
+  
+  """
+  ###SIGNAL	
   bin_sample = read_root(bin_file,"DecayTree",columns=branch_names)
   bin_sample = bin_sample.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   #Reorder the columns to required order
   bin_sample = bin_sample[branch_names]
-  
-  
+
   #Determine q2 binning, then angle binning within each q2 bin
   qc_bin_vals = {}
   for b in ["q2_%s" % var_type]:
@@ -160,7 +171,7 @@ if __name__ == "__main__" :
  
   for i in range(0,var_bins["q2_%s" % var_type]):
     binning.append((qc_bin_vals["costheta_D_%s_%s" % (var_type,i)],qc_bin_vals["costheta_L_%s_%s" % (var_type,i)],qc_bin_vals["chi_%s_%s" % (var_type,i)]))
-
+  """
    
   #Total rate factor multiplying the PDF
   Rate = tfa.FitParameter("Rate" , 1.0,-100,100)
@@ -179,10 +190,12 @@ if __name__ == "__main__" :
   I7  = tfa.FitParameter("I7"  , 0., -100, 100)
   I8  = tfa.FitParameter("I8"  , 0., -100, 100)
   I9  = tfa.FitParameter("I9"  , 0., -100, 100)
-  	
+
+  #The floating fraction of Ds
+  frac_Ds=tfa.FitParameter("frac_Ds", frac['B2DstDsX'] , -100, 100)
+
   coeffs = ["I1c","I1s","I2c","I2s","I6c","I6s","I3","I4","I5","I7","I8","I9"]
-  
-  
+  	
   #File used to create templates (flat sample with unbinned weights)
   template_file = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/3pi_%s_Total/model_vars_weights.root" % geom
   
@@ -192,15 +205,30 @@ if __name__ == "__main__" :
   template_sample = template_sample.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   #Reorder the columns to required order
   template_sample = template_sample[branch_names]
-  
+
+  """
   template_sample_q2 = []
-  
+	
   for i in range(0,var_bins["q2_%s" % var_type]):
     template_sample_q2.append(template_sample.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1])))
     template_sample_q2[i] = template_sample_q2[i].drop(columns=['q2_%s' % var_type])
     template_sample_q2[i] = template_sample_q2[i].values
-  
-  
+  """
+	
+
+  ###Ds BACKGROUND
+  bkg_file= "/home/ke/graphs/Ds.root"		
+  bkg_sample = read_root(bkg_file,"DecayTree",columns=branch_names)
+  bkg_sample = bkg_sample.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
+  #Reorder the columns to required order
+  bkg_sample = bkg_sample[branch_names]		
+  bkg_sample_q2 = []	
+  """
+  for i in range(0,var_bins["q2_%s" % var_type]):
+    bkg_sample_q2.append(bkg_sample.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1])))
+    bkg_sample_q2[i] = bkg_sample_q2[i].drop(columns=['q2_%s' % var_type])
+    bkg_sample_q2[i] = bkg_sample_q2[i].values	
+  """
   #Arrays containing each of the angular weights
   w = {}
   	
@@ -211,44 +239,55 @@ if __name__ == "__main__" :
     w[c] = read_root(template_file,"DecayTree",columns=branch_names)
     #w[c] = w[c].sample(n=1000000,random_state=9289)
     #Weights for each q2 bin
+    branch_names.remove(weight)
+   """
     for i in range(0,var_bins["q2_%s" % var_type]):
       w["%s_%s" % (c,i)] = w[c].query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1]))
       w["%s_%s" % (c,i)] = w["%s_%s" % (c,i)][[weight]]
       w["%s_%s" % (c,i)] = w["%s_%s" % (c,i)].values
       w["%s_%s" % (c,i)] = np.reshape(w["%s_%s" % (c,i)], len(w["%s_%s" % (c,i)]))
-      
-    branch_names.remove(weight)
+   """   
+
   	 		
   # List to keep template histograms
   histos = {}
   #Make histogram templates for each angular term
-  for i in range(0,var_bins["q2_%s" % var_type]):
-  	hist_norm = None
-  	for c in coeffs:
-  		print "Creating template for term %s in q2 bin %s" % (c,i)
-  		weight_sample = w["%s_%s" % (c,i)]
-  		hist = MakeHistogram(phsp, template_sample_q2[i], binning[i], weights = weight_sample)
-  		if not hist_norm:
-  			hist_norm = HistogramNorm( hist )
-  		histos["%s_%s" % (c,i)] = hist/hist_norm
-  
+  hist_norm = None
+  for c in coeffs:
+    print "Creating template for term %s " % (c)
+    weight_sample = w["%s" % (c)]
+    hist = MakeHistogram(phsp, template_sample, weights = weight_sample)  #bins=?
+    if not hist_norm:
+      hist_norm = HistogramNorm( hist )
+      histos["%s" % (c)] = hist/hist_norm
+  ######
+  histos_bkg = {}
+  #Make histogram templates for each angular term
+  hist_bkg_norm = None
+  for c in coeffs:
+    print "Creating template for term %s " % (c)
+    weight_bkg_sample = w["%s" % (c)]
+    hist_bkg = MakeHistogram(phsp, bkg_sample, weights = weight_bkg_sample)  #bins=?
+    if not hist_bkg_norm:
+      hist_bkg_norm = HistogramNorm( hist_bkg )
+      histos_bkg["%s" % (c)] = hist_bkg/hist_bkg_norm
   
   #Fit model
-  def fit_model(histos,i):
-    pdf = (1.0/3.0)*(4.0 - 6.0*I1s + I2c + 2.0*I2s)*histos["I1c_%s" % i]
-    pdf += I1s*histos["I1s_%s" % i]
-    pdf += I2c*histos["I2c_%s" % i]
-    pdf += I2s*histos["I2s_%s" % i]
-    pdf += I3*histos["I3_%s" % i]
-    pdf += I4*histos["I4_%s" % i]
-    pdf += I5*histos["I5_%s" % i]
-    pdf += I6c*histos["I6c_%s" % i]
-    pdf += I6s*histos["I6s_%s" % i]
-    pdf += I7*histos["I7_%s" % i]
-    pdf += I8*histos["I8_%s" % i]
-    pdf += I9*histos["I9_%s" % i]
+  def fit_model(histos):
+    pdf = (1.0/3.0)*(4.0 - 6.0*I1s + I2c + 2.0*I2s)*histos["I1c"]
+    pdf += I1s*histos["I1s"]
+    pdf += I2c*histos["I2c"]
+    pdf += I2s*histos["I2s"]
+    pdf += I3*histos["I3"]
+    pdf += I4*histos["I4"]
+    pdf += I5*histos["I5"]
+    pdf += I6c*histos["I6c"]
+    pdf += I6s*histos["I6s"]
+    pdf += I7*histos["I7"]
+    pdf += I8*histos["I8"]
+    pdf += I9*histos["I9"]
     pdf = Rate*pdf
-
+    pdf += frac_Ds*histos_bkg
     return pdf
 
 
