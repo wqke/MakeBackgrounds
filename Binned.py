@@ -90,12 +90,11 @@ if __name__ == "__main__" :
     q2_min = 0.0
  
   #Number of angle bins depending on the signal yield, requiring roughly 50 events per bin
-  q2_bins = 3
-  angle_bins = 11 #int((float(num_sig)*1000.0*(1.0/q2_bins)/50)**(1.0/3.0))
+  q2_bins=3 
+  angle_bins = int((float(num_sig)*1000.0/50)**(1.0/3.0))
  
   print "NUMBER OF BINS IN EACH ANGLE : %s" % angle_bins
-  print "NUMBER OF BINS IN q2 : %s" % q2_bins
-
+  
   #Binning scheme
   var_bins = {"costheta_D_%s" % var_type: angle_bins,
               "costheta_L_%s" % var_type: angle_bins,
@@ -151,6 +150,7 @@ if __name__ == "__main__" :
   #The floating fraction of Ds
   frac_Ds=tfa.FitParameter("frac_Ds", frac['B2DstDsX'] , -100, 100)
 
+
   coeffs = ["I1c","I1s","I2c","I2s","I6c","I6s","I3","I4","I5","I7","I8","I9"]
   	
   #File used to create templates (flat sample with unbinned weights)
@@ -162,16 +162,8 @@ if __name__ == "__main__" :
   template_sample = template_sample.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   #Reorder the columns to required order
   template_sample = template_sample[branch_names]
-
-  """
-  template_sample_q2 = []
-	
-  for i in range(0,var_bins["q2_%s" % var_type]):
-    template_sample_q2.append(template_sample.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1])))
-    template_sample_q2[i] = template_sample_q2[i].drop(columns=['q2_%s' % var_type])
-    template_sample_q2[i] = template_sample_q2[i].values
-  """
-	
+  template_sample = template_sample.drop(columns=['q2_%s' % var_type])
+  template_sample= template_sample.values
 
   ###Ds BACKGROUND
   bkg_file= "/home/ke/graphs/Ds.root"		
@@ -179,14 +171,9 @@ if __name__ == "__main__" :
   bkg_sample = bkg_sample.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   #Reorder the columns to required order
   bkg_sample = bkg_sample[branch_names]		
-  
-  """
-  bkg_sample_q2 = []	
-  for i in range(0,var_bins["q2_%s" % var_type]):
-    bkg_sample_q2.append(bkg_sample.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1])))
-    bkg_sample_q2[i] = bkg_sample_q2[i].drop(columns=['q2_%s' % var_type])
-    bkg_sample_q2[i] = bkg_sample_q2[i].values	
-  """
+  bkg_sample = bkg_sample.drop(columns=['q2_%s' % var_type])
+  bkg_sample = bkg_sample.values	
+
   #Arrays containing each of the angular weights
   w = {}
   	
@@ -197,37 +184,34 @@ if __name__ == "__main__" :
     w[c] = read_root(template_file,"DecayTree",columns=branch_names)
     #w[c] = w[c].sample(n=1000000,random_state=9289)
     #Weights for each q2 bin
+    w[c] = w[c].query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
+    w[c] = w[c][[weight]]
+    w[c] = w[c].values
+    w[c] = np.reshape(w[c], len(w[c]))
     branch_names.remove(weight)
-    """
-    for i in range(0,var_bins["q2_%s" % var_type]):
-      w["%s_%s" % (c,i)] = w[c].query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1]))
-      w["%s_%s" % (c,i)] = w["%s_%s" % (c,i)][[weight]]
-      w["%s_%s" % (c,i)] = w["%s_%s" % (c,i)].values
-      w["%s_%s" % (c,i)] = np.reshape(w["%s_%s" % (c,i)], len(w["%s_%s" % (c,i)]))
-    """   
-
+    
   binning = (angle_bins, angle_bins, angle_bins)  	 		
   # List to keep template histograms
   histos = {}
   #Make histogram templates for each angular term
   hist_norm = None
   for c in coeffs:
-    print "Creating template for term %s " % (c)
-    weight_sample = w["%s" % (c)]
+    print "Creating template for term %s " % c
+    weight_sample = w[c]
     hist = MakeHistogram(phsp, template_sample, binning,weights = weight_sample)  #bins=?
     if not hist_norm:
-      hist_norm = HistogramNorm( hist )
-      histos["%s" % (c)] = hist/hist_norm
+      hist_norm = float(HistogramNorm( hist ))
+    histos[c] = hist/hist_norm
   ######
-  histos_bkg = {}
+  histos_bkg = []
   #Make histogram templates for each angular term
   hist_bkg_norm = None
   for c in coeffs:
     print "Creating template for term %s " % (c)
     hist_bkg = MakeHistogram(phsp, bkg_sample, binning)  #bins=?
     if not hist_bkg_norm:
-      hist_bkg_norm = HistogramNorm( hist_bkg )
-      histos_bkg+= [hist_bkg/hist_bkg_norm]
+      hist_bkg_norm = float(HistogramNorm( hist_bkg ))
+    histos_bkg+= [hist_bkg/hist_bkg_norm]
   
   #Fit model
   def fit_model(histos,histos_bkg):
@@ -243,21 +227,35 @@ if __name__ == "__main__" :
     pdf += I7*histos["I7"]
     pdf += I8*histos["I8"]
     pdf += I9*histos["I9"]
+    for j in range(12):
+      pdf += frac_Ds*histos_bkg[j]
     pdf = Rate*pdf
-    pdf += frac_Ds*histos_bkg
+    
     return pdf
 
   
   if(toy=="N"):
   	data_file_fit = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
   	data_sample_fit = read_root(data_file_fit,"DecayTree",columns=branch_names)
-  	data_sample_fit = data_sample_fit.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s>=%s and q2_%s<=%s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
+  	data_sample_fit = data_sample_fit.query("costheta_D_%s>=-1. and costheta_D_%s<=1. and costheta_L_%s>=-1. and costheta_L_%s<=1. and chi_%s>=-%s and chi_%s<=%s and q2_%s>=%s and q2_%s<=%s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   	data_sample_fit = data_sample_fit[branch_names]
   
   	#Randomly sample down to required size
-  
+        
   	data_sample_fit = data_sample_fit.sample(n=int(num_sig)*1000,random_state=int(num_sig))
-
+	
+	background_file="/home/ke/graphs/Ds.root"
+	background_fit= read_root(background_file,"DecayTree",columns=branch_names)
+	background_fit = background_fit.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s>=%s and q2_%s<=%s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
+  	background_fit = background_fit[branch_names]
+	background_fit = background_fit.sample(n=int(num_sig)*int(1000*frac['B2DstDsX']),random_state=int(int(num_sig)))
+	#print 'THE FRACTION IS :   ', len(background_fit)/len(data_sample_fit)
+	data_sample_fit = pd.concat([data_sample_fit,background_fit], ignore_index=True)
+	
+        #data_sample_fit=data_sample_fit.query("q2_%s > %s and q2_%s <= %s" % (var_type,q2_min,var_type,q2_max))
+        data_sample_fit = data_sample_fit.drop(columns=['q2_%s' % var_type])
+        data_sample_fit =data_sample_fit.values
+	
         fit_hist=MakeHistogram(phsp, data_sample_fit, binning)
         err_hist=np.sqrt(fit_hist + 0.001)
         norm=HistogramNorm(fit_hist)
@@ -293,7 +291,7 @@ if __name__ == "__main__" :
     toy_rand = random.randint(1,1e10)
     toy_suf = "_%s" % toy_rand
   	
-  np.save("%s/cov_%s_%s_%s_%s_q2_%s%s" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf),covmat)
+  np.save("%s/cov_%s_%s_%s_%s_q2_%s" % (results_dir,sub_mode,geom,var_type,num_sig,toy_suf),covmat)
   
   #Derived results
   i9=result['I9'][0]
@@ -324,7 +322,7 @@ if __name__ == "__main__" :
   a5=(-3/4.)*(1-i8-i7-i9-i4-i3-i2s-i1s-i1c-i2c-i6s-i6c)/Gammaq
   a7=(-3/4.)*i7/Gammaq
   para={'RAB':(rab.n,rab.s),'RLT':(rlt.n,rlt.s),'AFB':(afb.n,afb.s),'A6s':(a6s.n,a6s.s),'A3':(a3.n,a3.s),'A9':(a9.n,a9.s),'A4':(a4.n,a4.s),'A8':(a8.n,a8.s),'A5':(a5.n,a5.s),'A7':(a7.n,a7.s), 'I1c': (i1c.n,i1c.s)}
-  p = open( "%s/param_%s_%s_%s_%s_q2_%s%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf), "w")
+  p = open( "%s/param_%s_%s_%s_%s_q2_%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,toy_suf), "w")
   slist=['RAB','RLT','AFB','A6s','A3','A9','A4','A8','A5','A7','I1c']
   for s in slist:
     a=s+" "
