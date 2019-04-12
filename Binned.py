@@ -91,7 +91,7 @@ if __name__ == "__main__" :
  
   #Number of angle bins depending on the signal yield, requiring roughly 50 events per bin
   q2_bins = 3
-  angle_bins = int((float(num_sig)*1000.0*(1.0/q2_bins)/50)**(1.0/3.0))
+  angle_bins = 11 #int((float(num_sig)*1000.0*(1.0/q2_bins)/50)**(1.0/3.0))
  
   print "NUMBER OF BINS IN EACH ANGLE : %s" % angle_bins
   print "NUMBER OF BINS IN q2 : %s" % q2_bins
@@ -179,8 +179,9 @@ if __name__ == "__main__" :
   bkg_sample = bkg_sample.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   #Reorder the columns to required order
   bkg_sample = bkg_sample[branch_names]		
-  bkg_sample_q2 = []	
+  
   """
+  bkg_sample_q2 = []	
   for i in range(0,var_bins["q2_%s" % var_type]):
     bkg_sample_q2.append(bkg_sample.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1])))
     bkg_sample_q2[i] = bkg_sample_q2[i].drop(columns=['q2_%s' % var_type])
@@ -205,7 +206,7 @@ if __name__ == "__main__" :
       w["%s_%s" % (c,i)] = np.reshape(w["%s_%s" % (c,i)], len(w["%s_%s" % (c,i)]))
     """   
 
-  binning = (4, 4, 8)  	 		
+  binning = (angle_bins, angle_bins, angle_bins)  	 		
   # List to keep template histograms
   histos = {}
   #Make histogram templates for each angular term
@@ -223,14 +224,13 @@ if __name__ == "__main__" :
   hist_bkg_norm = None
   for c in coeffs:
     print "Creating template for term %s " % (c)
-    weight_bkg_sample = w["%s" % (c)]
-    hist_bkg = MakeHistogram(phsp, bkg_sample, binning,weights = weight_bkg_sample)  #bins=?
+    hist_bkg = MakeHistogram(phsp, bkg_sample, binning)  #bins=?
     if not hist_bkg_norm:
       hist_bkg_norm = HistogramNorm( hist_bkg )
-      histos_bkg["%s" % (c)] = hist_bkg/hist_bkg_norm
+      histos_bkg+= [hist_bkg/hist_bkg_norm]
   
   #Fit model
-  def fit_model(histos):
+  def fit_model(histos,histos_bkg):
     pdf = (1.0/3.0)*(4.0 - 6.0*I1s + I2c + 2.0*I2s)*histos["I1c"]
     pdf += I1s*histos["I1s"]
     pdf += I2c*histos["I2c"]
@@ -247,7 +247,7 @@ if __name__ == "__main__" :
     pdf += frac_Ds*histos_bkg
     return pdf
 
-
+  
   if(toy=="N"):
   	data_file_fit = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
   	data_sample_fit = read_root(data_file_fit,"DecayTree",columns=branch_names)
@@ -257,136 +257,114 @@ if __name__ == "__main__" :
   	#Randomly sample down to required size
   
   	data_sample_fit = data_sample_fit.sample(n=int(num_sig)*1000,random_state=int(num_sig))
-  	
-  	#Create datasets for each q2 bin
-  	data_sample_fit_q2 = []
-  	data_sample_fit_q2_a = []
-  	fit_hist = []
-  	err_hist = []
-  	norm = []
-  	
-  	for i in range(0,var_bins["q2_%s" % var_type]):
-          data_sample_fit_q2.append(data_sample_fit.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1])))
-          data_sample_fit_q2[i] = data_sample_fit_q2[i].drop(columns=['q2_%s' % var_type])
-          data_sample_fit_q2_a.append(data_sample_fit_q2[i].values)
-          fit_hist.append(MakeHistogram(phsp, data_sample_fit_q2_a[i], binning[i]))
-          err_hist.append(np.sqrt(fit_hist[i] + 0.001))
-          norm.append(HistogramNorm(fit_hist[i]))
+
+        fit_hist=MakeHistogram(phsp, data_sample_fit, binning)
+        err_hist=np.sqrt(fit_hist + 0.001)
+        norm=HistogramNorm(fit_hist)
   	
   else:
-  	
   	init_op = tf.initialize_all_variables()
   	sess.run(init_op)
-  
   	#Create an instance of the fit PDF, then Poisson vary the values in each bin
-  	for i in range(0,var_bins["q2_%s" % var_type]):
-          fit_hist.append(sess.run(fit_model(histos,i)))
-          #Convert density to number of events
-          fit_hist[i] = fit_hist[i]*int(num_sig)*1000*(1.0/var_bins["q2_%s" % var_type])
-
-          fit_hist[i] = np.random.poisson(fit_hist[i])
-          
-          err_hist.append(np.sqrt(fit_hist[i] + 0.001))
-          norm.append(HistogramNorm(fit_hist[i]))
-
+        fit_hist=sess.run(fit_model(histos,histos_bkg))
+        #Convert density to number of events
+        fit_hist = fit_hist*int(num_sig)*1000
+        fit_hist = np.random.poisson(fit_hist)
+        err_hist=np.sqrt(fit_hist + 0.001)
+        norm=HistogramNorm(fit_hist)
   
-  chi2 = []
-  result = []
-  covmat = []
   
-  for i in range(0,var_bins["q2_%s" % var_type]):
-  	
-    # Define binned Chi2 to be minimised
-    chi2.append(BinnedChi2( fit_model(histos,i), fit_hist[i].astype(float)/norm[i], err_hist[i].astype(float)/norm[i] ))
-  
-    # Run Minuit minimisation
-    r, c = tfa.RunMinuit(sess, chi2[i], runHesse=True)
-    result.append(r)
-    covmat.append(c)
-    print result[i]
+  # Define binned Chi2 to be minimised
+  chi2=BinnedChi2( fit_model(histos,histos_bkg), fit_hist.astype(float)/norm, err_hist.astype(float)/norm )
+  # Run Minuit minimisation
+  r, c = tfa.RunMinuit(sess, chi2, runHesse=True)
+  result=r
+  covmat=c
+  print result
   	
 
-    #Save covariance matrix
-    results_dir = ""
-    toy_suf = ""
-    if(toy=="N"):
-      results_dir = "/home/ke/TensorFlowAnalysis/BinnedResult"
-    else:
-      results_dir = "/home/ke/TensorFlowAnalysis/BinnedToys"
-      toy_rand = random.randint(1,1e10)
-      toy_suf = "_%s" % toy_rand
+  #Save covariance matrix
+  results_dir = ""
+  toy_suf = ""
+  if(toy=="N"):
+    results_dir = "/home/ke/TensorFlowAnalysis/BinnedResult"
+  else:
+    results_dir = "/home/ke/TensorFlowAnalysis/BinnedToys"
+    toy_rand = random.randint(1,1e10)
+    toy_suf = "_%s" % toy_rand
   	
-    np.save("%s/cov_%s_%s_%s_%s_q2_%s%s" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf),covmat[i])
+  np.save("%s/cov_%s_%s_%s_%s_q2_%s%s" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf),covmat)
   
-    #Derived results
-    i9=result[i]['I9'][0]
-    i8=result[i]['I8'][0]
-    i7=result[i]['I7'][0]
-    i6s=result[i]['I6s'][0]
-    i6c=result[i]['I6c'][0]
-    i4=result[i]['I4'][0]
-    i5=result[i]['I5'][0]
-    i3=result[i]['I3'][0]
-    i2s=result[i]['I2s'][0]
-    i2c=result[i]['I2c'][0]
-    i1s=result[i]['I1s'][0]
-    rate=result[i]['Rate'][0]
-    (rate,i1s,i2c,i2s,i6c,i6s,i3,i4,i5,i7,i8,i9) = correlated_values([rate,i1s,i2c,i2s,i6c,i6s,i3,i4,i5,i7,i8,i9],covmat[i])
+  #Derived results
+  i9=result['I9'][0]
+  i8=result['I8'][0]
+  i7=result['I7'][0]
+  i6s=result['I6s'][0]
+  i6c=result['I6c'][0]
+  i4=result['I4'][0]
+  i5=result['I5'][0]
+  i3=result['I3'][0]
+  i2s=result['I2s'][0]
+  i2c=result['I2c'][0]
+  i1s=result['I1s'][0]
+  rate=result['Rate'][0]
+  (rate,i1s,i2c,i2s,i6c,i6s,i3,i4,i5,i7,i8,i9) = correlated_values([rate,i1s,i2c,i2s,i6c,i6s,i3,i4,i5,i7,i8,i9],covmat)
     
-    i1c=(4 - 6*i1s + i2c + 2*i2s)/3
-    rab=(i1c+2*i1s-3*i2c-6*i2s)/(2*(i1c+2*i1s+i2c+2*i2s))
-    rlt= (3*i1c-i2c)/(2*(3*i1s-i2s))
-    Gammaq=(3*i1c+6*i1s-i2c-2*i1s)/4.
-    afb1=i6c+2*i6s
-    afb=(3/8.)*(afb1/Gammaq)
-    a3=(1/(np.pi*2))*i3/Gammaq
-    a9=(1/(2*np.pi))*i9/Gammaq
-    a6s=(-27/8.)*(i6s/Gammaq)
-    a4=(-2/np.pi)*i4/Gammaq
-    a8=(2/np.pi)*i8/Gammaq
-    a5=(-3/4.)*(1-i8-i7-i9-i4-i3-i2s-i1s-i1c-i2c-i6s-i6c)/Gammaq
-    a7=(-3/4.)*i7/Gammaq
-    para={'RAB':(rab.n,rab.s),'RLT':(rlt.n,rlt.s),'AFB':(afb.n,afb.s),'A6s':(a6s.n,a6s.s),'A3':(a3.n,a3.s),'A9':(a9.n,a9.s),'A4':(a4.n,a4.s),'A8':(a8.n,a8.s),'A5':(a5.n,a5.s),'A7':(a7.n,a7.s), 'I1c': (i1c.n,i1c.s)}
-    p = open( "%s/param_%s_%s_%s_%s_q2_%s%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf), "w")
-    slist=['RAB','RLT','AFB','A6s','A3','A9','A4','A8','A5','A7','I1c']
-    for s in slist:
-      a=s+" "
-      a += str(para[s][0])
-      a += " "
-      a += str(para[s][1])
-      p.write(a + "\n")
-    p.close()
-    print para
+  i1c=(4 - 6*i1s + i2c + 2*i2s)/3
+  rab=(i1c+2*i1s-3*i2c-6*i2s)/(2*(i1c+2*i1s+i2c+2*i2s))
+  rlt= (3*i1c-i2c)/(2*(3*i1s-i2s))
+  Gammaq=(3*i1c+6*i1s-i2c-2*i1s)/4.
+  afb1=i6c+2*i6s
+  afb=(3/8.)*(afb1/Gammaq)
+  a3=(1/(np.pi*2))*i3/Gammaq
+  a9=(1/(2*np.pi))*i9/Gammaq
+  a6s=(-27/8.)*(i6s/Gammaq)
+  a4=(-2/np.pi)*i4/Gammaq
+  a8=(2/np.pi)*i8/Gammaq
+  a5=(-3/4.)*(1-i8-i7-i9-i4-i3-i2s-i1s-i1c-i2c-i6s-i6c)/Gammaq
+  a7=(-3/4.)*i7/Gammaq
+  para={'RAB':(rab.n,rab.s),'RLT':(rlt.n,rlt.s),'AFB':(afb.n,afb.s),'A6s':(a6s.n,a6s.s),'A3':(a3.n,a3.s),'A9':(a9.n,a9.s),'A4':(a4.n,a4.s),'A8':(a8.n,a8.s),'A5':(a5.n,a5.s),'A7':(a7.n,a7.s), 'I1c': (i1c.n,i1c.s)}
+  p = open( "%s/param_%s_%s_%s_%s_q2_%s%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf), "w")
+  slist=['RAB','RLT','AFB','A6s','A3','A9','A4','A8','A5','A7','I1c']
+  for s in slist:
+    a=s+" "
+    a += str(para[s][0])
+    a += " "
+    a += str(para[s][1])
+    p.write(a + "\n")
+  p.close()
+  print para
   
-    tfa.WriteFitResults(result[i],"%s/result_%s_%s_%s_%s_q2_%s%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,i,toy_suf))
-      #Get final fit PDF
-    fit_result = sess.run(fit_model(histos,i))
+  tfa.WriteFitResults(result,"%s/result_%s_%s_%s_%s_%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,toy_suf))
+    #Get final fit PDF
+  #fit_result = sess.run(fit_model(histos,histos_bkg))
     
+  """	
     #1D projections
-    fit_hist_proj = {}
-    err_hist_proj  = {}
-    norm_proj = {}
-    fit_result_proj = {}
-    data_vals = {}
-    branch_names.remove("q2_%s" % var_type)
-    for b in branch_names:
+  fit_hist_proj = {}
+  err_hist_proj  = {}
+  norm_proj = {}
+  fit_result_proj = {}
+  data_vals = {}
+  branch_names.remove("q2_%s" % var_type)
+  for b in branch_names:
   	
-      axis = [0,1,2]
-      if(b=="costheta_D_%s" % var_type):
-        axis.remove(0)
-      elif(b=="costheta_L_%s" % var_type):
-        axis.remove(1)
-      elif(b=="chi_%s" % var_type):
-        axis.remove(2)
+    axis = [0,1,2]
+    if(b=="costheta_D_%s" % var_type):
+      axis.remove(0)
+    elif(b=="costheta_L_%s" % var_type):
+      axis.remove(1)
+    elif(b=="chi_%s" % var_type):
+      axis.remove(2)
     	
-      if(toy=="N"):
-        data_vals["%s_%s" % (b,i)] = data_sample_fit_q2[i][b].values
-        #For equi-populated bins
-        fit_hist_proj["%s_%s" % (b,i)] = MakeHistogram_1D(data_vals["%s_%s" % (b,i)], (qc_bin_vals["%s_%s" % (b,i)]))
-       	#For equal sized bins
-        #fit_hist_proj["%s_%s" % (b,i)] = MakeHistogram_1D(data_vals["%s_%s" % (b,i)], var_bins[b])
-      else:
-        fit_hist_proj["%s_%s" % (b,i)] = np.sum(fit_hist[i], axis=tuple(axis), keepdims=False)
+    if(toy=="N"):
+      data_vals["%s" % (b)] = data_sample_fit_q2[i][b].values
+      #For equi-populated bins
+      fit_hist_proj["%s" % (b)] = MakeHistogram_1D(data_vals["%s" % (b)], (qc_bin_vals["%s" % (b)]))
+ 	#For equal sized bins
+      #fit_hist_proj["%s_%s" % (b,i)] = MakeHistogram_1D(data_vals["%s_%s" % (b,i)], var_bins[b])
+    else:
+      fit_hist_proj["%s_%s" % (b,i)] = np.sum(fit_hist[i], axis=tuple(axis), keepdims=False)
    
       err_hist_proj["%s_%s" % (b,i)] = np.sqrt(fit_hist_proj["%s_%s" % (b,i)])
       norm_proj["%s_%s" % (b,i)] = HistogramNorm(fit_hist_proj["%s_%s" % (b,i)])
@@ -491,3 +469,4 @@ if __name__ == "__main__" :
     plt.show()
     if(toy=="N"):
       fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_Hist_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
+    """
