@@ -129,49 +129,6 @@ if __name__ == "__main__" :
   #Read RapidSim sample used to determine bins
   print "Loading tree"
   bin_file = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
-  
-  """
-  ###SIGNAL	
-  bin_sample = read_root(bin_file,"DecayTree",columns=branch_names)
-  bin_sample = bin_sample.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
-  #Reorder the columns to required order
-  bin_sample = bin_sample[branch_names]
-
-  #Determine q2 binning, then angle binning within each q2 bin
-  qc_bin_vals = {}
-  for b in ["q2_%s" % var_type]:
-    print b
-    qc = pd.qcut(bin_sample[b], q=var_bins[b], precision=5)
-    qc_bins = qc.unique()
-    qc_bin_vals[b] = []
-    for i in range(0,var_bins[b]):
-      qc_bin_vals[b].append(qc_bins[i].left)
-      qc_bin_vals[b].append(qc_bins[i].right)
-    #Retain unique values then sort
-    qc_bin_vals[b] = list(set(qc_bin_vals[b]))
-    qc_bin_vals[b].sort()
-    print qc_bin_vals[b]
-  
-  binning = []
-  
-  for b in ["costheta_D_%s" % var_type,"costheta_L_%s" % var_type,"chi_%s" % var_type]:
-    for i in range(0,var_bins["q2_%s" % var_type]):
-      print "%s %s" % (b,i)
-      bin_sample_temp = bin_sample.query("q2_%s > %s and q2_%s <= %s" % (var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1]))
-      qc = pd.qcut(bin_sample_temp[b], q=var_bins[b], precision=5)
-      qc_bins = qc.unique()
-      qc_bin_vals["%s_%s" % (b,i)] = []
-      for j in range(0,var_bins[b]):
-        qc_bin_vals["%s_%s" % (b,i)].append(qc_bins[j].left)
-        qc_bin_vals["%s_%s" % (b,i)].append(qc_bins[j].right)
-      #Retain unique values then sort
-      qc_bin_vals["%s_%s" % (b,i)] = list(set(qc_bin_vals["%s_%s" % (b,i)]))
-      qc_bin_vals["%s_%s" % (b,i)].sort()
-      print qc_bin_vals["%s_%s" % (b,i)]
- 
-  for i in range(0,var_bins["q2_%s" % var_type]):
-    binning.append((qc_bin_vals["costheta_D_%s_%s" % (var_type,i)],qc_bin_vals["costheta_L_%s_%s" % (var_type,i)],qc_bin_vals["chi_%s_%s" % (var_type,i)]))
-  """
    
   #Total rate factor multiplying the PDF
   Rate = tfa.FitParameter("Rate" , 1.0,-100,100)
@@ -240,15 +197,15 @@ if __name__ == "__main__" :
     #w[c] = w[c].sample(n=1000000,random_state=9289)
     #Weights for each q2 bin
     branch_names.remove(weight)
-   """
+    """
     for i in range(0,var_bins["q2_%s" % var_type]):
       w["%s_%s" % (c,i)] = w[c].query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s > %s and q2_%s <= %s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,qc_bin_vals["q2_%s" % var_type][i],var_type,qc_bin_vals["q2_%s" % var_type][i+1]))
       w["%s_%s" % (c,i)] = w["%s_%s" % (c,i)][[weight]]
       w["%s_%s" % (c,i)] = w["%s_%s" % (c,i)].values
       w["%s_%s" % (c,i)] = np.reshape(w["%s_%s" % (c,i)], len(w["%s_%s" % (c,i)]))
-   """   
+    """   
 
-  	 		
+  binning = (4, 4, 8)  	 		
   # List to keep template histograms
   histos = {}
   #Make histogram templates for each angular term
@@ -256,7 +213,7 @@ if __name__ == "__main__" :
   for c in coeffs:
     print "Creating template for term %s " % (c)
     weight_sample = w["%s" % (c)]
-    hist = MakeHistogram(phsp, template_sample, weights = weight_sample)  #bins=?
+    hist = MakeHistogram(phsp, template_sample, binning,weights = weight_sample)  #bins=?
     if not hist_norm:
       hist_norm = HistogramNorm( hist )
       histos["%s" % (c)] = hist/hist_norm
@@ -267,7 +224,7 @@ if __name__ == "__main__" :
   for c in coeffs:
     print "Creating template for term %s " % (c)
     weight_bkg_sample = w["%s" % (c)]
-    hist_bkg = MakeHistogram(phsp, bkg_sample, weights = weight_bkg_sample)  #bins=?
+    hist_bkg = MakeHistogram(phsp, bkg_sample, binning,weights = weight_bkg_sample)  #bins=?
     if not hist_bkg_norm:
       hist_bkg_norm = HistogramNorm( hist_bkg )
       histos_bkg["%s" % (c)] = hist_bkg/hist_bkg_norm
