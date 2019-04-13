@@ -248,9 +248,11 @@ if __name__ == "__main__" :
 	background_fit= read_root(background_file,"DecayTree",columns=branch_names)
 	background_fit = background_fit.query("costheta_D_%s>=-1 and costheta_D_%s<=1 and costheta_L_%s>=-1 and costheta_L_%s<=1 and chi_%s>=-%s and chi_%s<=%s and q2_%s>=%s and q2_%s<=%s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   	background_fit = background_fit[branch_names]
-	background_fit = background_fit.sample(n=int(num_sig)*int(1000*frac['B2DstDsX']),random_state=int(int(num_sig)))
-	#print 'THE FRACTION IS :   ', len(background_fit)/len(data_sample_fit)
+	background_fit = background_fit.sample(n=int(len(data_sample_fit)*frac['B2DstDsX']),random_state=int(num_sig))
+	print 'THE FRACTION IS :   ', len(background_fit)/len(data_sample_fit)
 	data_sample_fit = pd.concat([data_sample_fit,background_fit], ignore_index=True)
+	
+	#data_sample_fit = data_sample_fit.sample(n=int(num_sig)*1000,random_state=int(num_sig))
 	
         #data_sample_fit=data_sample_fit.query("q2_%s > %s and q2_%s <= %s" % (var_type,q2_min,var_type,q2_max))
         data_sample_fit = data_sample_fit.drop(columns=['q2_%s' % var_type])
