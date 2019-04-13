@@ -90,7 +90,7 @@ if __name__ == "__main__" :
     q2_min = 0.0
  
   #Number of angle bins depending on the signal yield, requiring roughly 50 events per bin
-  q2_bins=3 
+  q2_bins=10
   angle_bins = int((float(num_sig)*1000.0/50)**(1.0/3.0))
  
   print "NUMBER OF BINS IN EACH ANGLE : %s" % angle_bins
@@ -336,11 +336,13 @@ if __name__ == "__main__" :
   print para
   
   tfa.WriteFitResults(result,"%s/result_%s_%s_%s_%s_%s.txt" % (results_dir,sub_mode,geom,var_type,num_sig,toy_suf))
-    #Get final fit PDF
-  #fit_result = sess.run(fit_model(histos,histos_bkg))
     
-  """	
-    #1D projections
+	
+  #Get final fit PDF
+  fit_result = sess.run(fit_model(histos,histos_bkg))
+    
+  	
+  #1D projections
   fit_hist_proj = {}
   err_hist_proj  = {}
   norm_proj = {}
@@ -348,7 +350,6 @@ if __name__ == "__main__" :
   data_vals = {}
   branch_names.remove("q2_%s" % var_type)
   for b in branch_names:
-  	
     axis = [0,1,2]
     if(b=="costheta_D_%s" % var_type):
       axis.remove(0)
@@ -358,115 +359,112 @@ if __name__ == "__main__" :
       axis.remove(2)
     	
     if(toy=="N"):
-      data_vals["%s" % (b)] = data_sample_fit_q2[i][b].values
+      data_vals[b] = data_sample_fit[b].values
       #For equi-populated bins
-      fit_hist_proj["%s" % (b)] = MakeHistogram_1D(data_vals["%s" % (b)], (qc_bin_vals["%s" % (b)]))
+      fit_hist_proj[b] = MakeHistogram_1D(data_vals[b], bins=var_bins[b])
  	#For equal sized bins
       #fit_hist_proj["%s_%s" % (b,i)] = MakeHistogram_1D(data_vals["%s_%s" % (b,i)], var_bins[b])
     else:
-      fit_hist_proj["%s_%s" % (b,i)] = np.sum(fit_hist[i], axis=tuple(axis), keepdims=False)
+      fit_hist_proj[b] = np.sum(fit_hist, axis=tuple(axis), keepdims=False)
    
-      err_hist_proj["%s_%s" % (b,i)] = np.sqrt(fit_hist_proj["%s_%s" % (b,i)])
-      norm_proj["%s_%s" % (b,i)] = HistogramNorm(fit_hist_proj["%s_%s" % (b,i)])
-      fit_hist_proj["%s_%s" % (b,i)] = fit_hist_proj["%s_%s" % (b,i)].astype(float)/norm_proj["%s_%s" % (b,i)]
-      err_hist_proj["%s_%s" % (b,i)] = err_hist_proj["%s_%s" % (b,i)].astype(float)/norm_proj["%s_%s" % (b,i)]
-      
+    err_hist_proj[b] = np.sqrt(fit_hist_proj[b])
+    norm_proj[b] = HistogramNorm(fit_hist_proj[b])
+    fit_hist_proj[b] = fit_hist_proj[b].astype(float)/norm_proj[b]
+    err_hist_proj[b] = err_hist_proj[b].astype(float)/norm_proj[b]
+    """
       #Binning for equi-populated bins
-      bin_centres = []
-      bin_width = []
-      for j in range(0,len(qc_bin_vals["%s_%s" % (b,i)])-1):
-        bin_centres.append(0.5*(qc_bin_vals["%s_%s" % (b,i)][j]+qc_bin_vals["%s_%s" % (b,i)][j+1]))
-        bin_width.append(0.5*(qc_bin_vals["%s_%s" % (b,i)][j+1]-qc_bin_vals["%s_%s" % (b,i)][j]))
-    
+      bin_centres.append(0.5*(qc_bin_vals[b]+qc_bin_vals[b][j+1]))
+      bin_width.append(0.5*(qc_bin_vals[b]-qc_bin_vals[b][j]))
+    """
       #Binning for equal sized bins
       #bin_width = 0.5*float(var_range[b][1] - var_range[b][0])/var_bins[b]    
       #bin_centres = []
       #for j in range(0,var_bins[b]):
       #	bin_centres.append(var_range[b][0]+bin_width + j*2*bin_width)
       
-      fit_result_proj["%s_%s" % (b,i)] = np.sum(fit_result, axis=tuple(axis), keepdims=False)
+    fit_result_proj[b] = np.sum(fit_result, axis=tuple(axis), keepdims=False)
   		
-      fig,ax = plt.subplots(figsize=(7,7))
-      plt.errorbar(bin_centres,fit_result_proj["%s_%s" % (b,i)]/np.sum(fit_result_proj["%s_%s" % (b,i)]),xerr=bin_width,edgecolor=None,ls='none',alpha=0.5,color='b',label="Fit")
-      plt.errorbar(bin_centres,fit_hist_proj["%s_%s" % (b,i)],yerr=err_hist_proj["%s_%s" % (b,i)],ls='none',color='k',markersize='3',fmt='o',label="Data")
+    fig,ax = plt.subplots(figsize=(7,7))
+    plt.errorbar(bin_centres,fit_result_proj[b]/np.sum(fit_result_proj[b]),xerr=bin_width,edgecolor=None,ls='none',alpha=0.5,color='b',label="Fit")
+    plt.errorbar(bin_centres,fit_hist_proj[b],yerr=err_hist_proj[b],ls='none',color='k',markersize='3',fmt='o',label="Data")
       
-      plt.ylabel("Density")
-      plt.xlabel(var_titles[b])
-      plt.legend(loc='lower right')
+    plt.ylabel("Density")
+    plt.xlabel(var_titles[b])
+    plt.legend(loc='lower right')
       
-      y_min,y_max = ax.get_ylim()
-      plt.ylim(0.0,y_max*1.05)
-      plt.show()
+    y_min,y_max = ax.get_ylim()
+    plt.ylim(0.0,y_max*1.05)
+    plt.show()
 
-      if(toy=="N"):
-        fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/%s_%s_%s_%s_%s_q2_%s.pdf' % (b,sub_mode,geom,var_type,num_sig,i))
-    branch_names.append("q2_%s" % var_type)
+    if(toy=="N"):
+      fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/%s_%s_%s_%s_%s_q2.pdf' % (b,sub_mode,geom,var_type,num_sig))
+  branch_names.append("q2_%s" % var_type)
     
 
    
 
     #Unrolled 1D plot of all bins
-    fit_result_1d = fit_result.ravel()
+  fit_result_1d = fit_result.ravel()
     
-    data_norm = fit_hist[i].astype(float)/norm[i]
-    data_norm_1d = data_norm.ravel()
+  data_norm = fit_hist.astype(float)/norm
+  data_norm_1d = data_norm.ravel()
     
-    err_norm = err_hist[i].astype(float)/norm[i]
-    err_norm_1d = err_norm.ravel()
+  err_norm = err_hist.astype(float)/norm
+  err_norm_1d = err_norm.ravel()
     
-    x_max = angle_bins**3
-    x = np.linspace(0,x_max-1,x_max)
+  x_max = angle_bins**3
+  x = np.linspace(0,x_max-1,x_max)
     
-    fig,ax = plt.subplots(figsize=(15,5))
+  fig,ax = plt.subplots(figsize=(15,5))
     
-    plt.bar(x,fit_result_1d,edgecolor=None,color='r',alpha=0.5,label="Fit")
-    plt.errorbar(x,data_norm_1d,yerr=err_norm_1d,ls='none',color='k',markersize='3',fmt='o',alpha=0.8,label="Data")
+  plt.bar(x,fit_result_1d,edgecolor=None,color='r',alpha=0.5,label="Fit")
+  plt.errorbar(x,data_norm_1d,yerr=err_norm_1d,ls='none',color='k',markersize='3',fmt='o',alpha=0.8,label="Data")
     
-    plt.ylabel("Density")
-    plt.xlabel("Bin number")
-    plt.xlim(-1,x_max)
+  plt.ylabel("Density")
+  plt.xlabel("Bin number")
+  plt.xlim(-1,x_max)
     
-    plt.legend()
+  plt.legend()
     
-    plt.tight_layout()
-    plt.show()
-    if(toy=="N"):
-      fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Fit_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
+  plt.tight_layout()
+  plt.show()
+  if(toy=="N"):
+    fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Fit_%s_%s_%s_%s_q2.pdf' % (sub_mode,geom,var_type,num_sig))
       
   		
     #Pull plot	
-    pull = (data_norm_1d - fit_result_1d)/err_norm_1d
+  pull = (data_norm_1d - fit_result_1d)/err_norm_1d
     
-    fig,ax = plt.subplots(figsize=(15,5))
+  fig,ax = plt.subplots(figsize=(15,5))
     
-    plt.bar(x,pull,edgecolor='navy',color='royalblue',fill=True)
+  plt.bar(x,pull,edgecolor='navy',color='royalblue',fill=True)
     
-    plt.ylabel("Pull ($\sigma$)")
-    plt.xlabel("Bin number")
-    plt.xlim(-1,x_max)
-    plt.ylim(-5,5)
+  plt.ylabel("Pull ($\sigma$)")
+  plt.xlabel("Bin number")
+  plt.xlim(-1,x_max)
+  plt.ylim(-5,5)
     
-    plt.tight_layout()
-    plt.show()
-    if(toy=="N"):
-      fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
+  plt.tight_layout()
+  plt.show()
+  if(toy=="N"):
+    fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_%s_%s_%s_%s_q2.pdf' % (sub_mode,geom,var_type,num_sig))
   	
     #Histogram of the pull values with a fit
-    fig,ax = plt.subplots(figsize=(7,7))
+  fig,ax = plt.subplots(figsize=(7,7))
       
-    pull_bins = int(np.sqrt(x_max))
-    n, hist_bins, patches = plt.hist(pull,bins=pull_bins,range=(-5,5),histtype='step',color='navy',normed=True)
+  pull_bins = int(np.sqrt(x_max))
+  n, hist_bins, patches = plt.hist(pull,bins=pull_bins,range=(-5,5),histtype='step',color='navy',normed=True)
     
-    plt.xlabel("Pull value ($\\sigma$)")
-    plt.ylabel("Fraction of bins")
+  plt.xlabel("Pull value ($\\sigma$)")
+  plt.ylabel("Fraction of bins")
     
-    mu = pull.mean()
-    mu_err = sem(pull)
-    sigma = pull.std()
+  mu = pull.mean()
+  mu_err = sem(pull)
+  sigma = pull.std()
     
-    plt.title("$\\mu_{Pull} = %.3f \\pm %.3f$, $\\sigma_{Pull} = %.3f$" % (mu,mu_err,sigma))
+  plt.title("$\\mu_{Pull} = %.3f \\pm %.3f$, $\\sigma_{Pull} = %.3f$" % (mu,mu_err,sigma))
     
-    plt.show()
-    if(toy=="N"):
-      fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_Hist_%s_%s_%s_%s_q2_%s.pdf' % (sub_mode,geom,var_type,num_sig,i))
-    """
+  plt.show()
+  if(toy=="N"):
+    fig.savefig('/home/ke/TensorFlowAnalysis/BinnedFigs/Pull_Hist_%s_%s_%s_%s_q2.pdf' % (sub_mode,geom,var_type,num_sig))
+
