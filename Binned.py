@@ -206,12 +206,10 @@ if __name__ == "__main__" :
   histos_bkg = []
   #Make histogram templates for each angular term
   hist_bkg_norm = None
-  for c in coeffs:
-    print "Creating template for term %s " % (c)
-    hist_bkg = MakeHistogram(phsp, bkg_sample, binning)  #bins=?
-    if not hist_bkg_norm:
-      hist_bkg_norm = float(HistogramNorm( hist_bkg ))
-    histos_bkg+= [hist_bkg/hist_bkg_norm]
+  hist_bkg = MakeHistogram(phsp, bkg_sample, binning)  #bins=?
+  if not hist_bkg_norm:
+    hist_bkg_norm = float(HistogramNorm( hist_bkg ))
+  histos_bkg= hist_bkg/hist_bkg_norm
   
   #Fit model
   def fit_model(histos,histos_bkg):
@@ -227,8 +225,7 @@ if __name__ == "__main__" :
     pdf += I7*histos["I7"]
     pdf += I8*histos["I8"]
     pdf += I9*histos["I9"]
-    for j in range(12):
-      pdf += frac_Ds*histos_bkg[j]
+    pdf += frac_Ds*histos_bkg
     pdf = Rate*pdf
     
     return pdf
@@ -256,6 +253,7 @@ if __name__ == "__main__" :
 	
         #data_sample_fit=data_sample_fit.query("q2_%s > %s and q2_%s <= %s" % (var_type,q2_min,var_type,q2_max))
         data_sample_fit = data_sample_fit.drop(columns=['q2_%s' % var_type])
+	data_sample_fit_q2=data_sample_fit
         data_sample_fit =data_sample_fit.values
 	
         fit_hist=MakeHistogram(phsp, data_sample_fit, binning)
@@ -357,31 +355,21 @@ if __name__ == "__main__" :
       axis.remove(1)
     elif(b=="chi_%s" % var_type):
       axis.remove(2)
-    	
     if(toy=="N"):
-      data_vals[b] = data_sample_fit[b].values
+      data_vals["%s" % (b)] = data_sample_fit_q2[b].values
       #For equi-populated bins
-      fit_hist_proj[b] = MakeHistogram_1D(data_vals[b], bins=var_bins[b])
- 	#For equal sized bins
+      fit_hist_proj["%s" % (b)] = MakeHistogram_1D(data_vals["%s" % (b)], var_bins[b])
+      #For equal sized bins
       #fit_hist_proj["%s_%s" % (b,i)] = MakeHistogram_1D(data_vals["%s_%s" % (b,i)], var_bins[b])
     else:
-      fit_hist_proj[b] = np.sum(fit_hist, axis=tuple(axis), keepdims=False)
+      fit_hist_proj["%s" % (b)] = np.sum(fit_hist, axis=tuple(axis), keepdims=False)
    
     err_hist_proj[b] = np.sqrt(fit_hist_proj[b])
     norm_proj[b] = HistogramNorm(fit_hist_proj[b])
     fit_hist_proj[b] = fit_hist_proj[b].astype(float)/norm_proj[b]
     err_hist_proj[b] = err_hist_proj[b].astype(float)/norm_proj[b]
-    """
-      #Binning for equi-populated bins
-      bin_centres.append(0.5*(qc_bin_vals[b]+qc_bin_vals[b][j+1]))
-      bin_width.append(0.5*(qc_bin_vals[b]-qc_bin_vals[b][j]))
-    """
-      #Binning for equal sized bins
-      #bin_width = 0.5*float(var_range[b][1] - var_range[b][0])/var_bins[b]    
-      #bin_centres = []
-      #for j in range(0,var_bins[b]):
-      #	bin_centres.append(var_range[b][0]+bin_width + j*2*bin_width)
-      
+
+
     fit_result_proj[b] = np.sum(fit_result, axis=tuple(axis), keepdims=False)
   		
     fig,ax = plt.subplots(figsize=(7,7))
