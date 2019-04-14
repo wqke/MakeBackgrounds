@@ -127,7 +127,7 @@ if __name__ == "__main__" :
 
   #Read RapidSim sample used to determine bins
   print "Loading tree"
-  bin_file = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
+  bin_file = "/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
    
   #Total rate factor multiplying the PDF
   Rate = tfa.FitParameter("Rate" , 1.0,-100,100)
@@ -154,7 +154,7 @@ if __name__ == "__main__" :
   coeffs = ["I1c","I1s","I2c","I2s","I6c","I6s","I3","I4","I5","I7","I8","I9"]
   	
   #File used to create templates (flat sample with unbinned weights)
-  template_file = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/3pi_%s_Total/model_vars_weights.root" % geom
+  template_file = "/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstTauNu/3pi_%s_Total/model_vars_weights.root" % geom
   
   template_sample = read_root(template_file,"DecayTree",columns=branch_names)
   #Keep 1M events
@@ -235,7 +235,7 @@ if __name__ == "__main__" :
 
   
   if(toy=="N"):
-  	data_file_fit = "/data/lhcb/users/hill/bd2dsttaunu_angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
+  	data_file_fit = "/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstTauNu/%s_%s_Total/model_vars_weights.root" % (sub_mode,geom)
   	data_sample_fit = read_root(data_file_fit,"DecayTree",columns=branch_names)
   	data_sample_fit = data_sample_fit.query("costheta_D_%s>=-1. and costheta_D_%s<=1. and costheta_L_%s>=-1. and costheta_L_%s<=1. and chi_%s>=-%s and chi_%s<=%s and q2_%s>=%s and q2_%s<=%s" % (var_type,var_type,var_type,var_type,var_type,math.pi,var_type,math.pi,var_type,q2_min,var_type,q2_max))
   	data_sample_fit = data_sample_fit[branch_names]
