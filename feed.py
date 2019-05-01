@@ -18,6 +18,10 @@ frac_fit={}
 frac_fit['2420']=3.03e-3/3.03e-3
 frac_fit['2460']=1.01e-3/3.03e-3
 
+frac_fiterr={}
+frac_fiterr['2420']=0.2e-3/3.03e-3
+frac_fiterr['2460']=0.24e-3/3.03e-3
+
 
 #SUB MODES
 #branching fractions
