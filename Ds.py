@@ -11,6 +11,28 @@ from root_numpy import root2array, rec2array, tree2array
 from ROOT import TFile,TChain,TTree
 from uncertainties import *
 
+
+from sklearn.metrics import accuracy_score, log_loss, classification_report, roc_auc_score,confusion_matrix
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC, LinearSVC, NuSVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.model_selection import  train_test_split,KFold
+from sklearn.utils.class_weight import compute_sample_weight
+import joblib
+import pandas.core.common as com
+from pandas.core.index import Index
+
+
+
+def returnBDT(pred):
+  res=[]
+  for element in pred:
+    res.append(element[0])
+  return res
+
+bdt = joblib.load('/home/ke/bdt.joblib')
+
 #D* Ds X background
 #Fractions defined relative to D* Ds*(=1)
 #Fit values
@@ -22,12 +44,19 @@ frac_fit['Bd2DstDs1']=0.365
 frac_fit['Bu2DststDs1']=0.416*5e-4/(5e-4+0.0177+8e-3)   #fraction of the sum x relative branching fractions
 frac_fit['Bu2DststDs']=0.416*0.0177/(5e-4+0.0177+8e-3)
 frac_fit['Bu2DststDsst']=0.416*8e-3/(5e-4+0.0177+8e-3)
-"""
-*The BF are taken to be proportional to the following decays
-B+->D1(2420)0 Ds*+ : B -> D* Ds  =8e-3
-B+->D1(2420)0 Ds+ : B -> D* Ds*  =0.0177
-B+->D1(2420)0 Ds1(2460)+ : B -> D* Ds1  =5e-4
-"""   
+
+
+frac_fiterr={}
+frac_fiterr['Bd2DstDs']=
+frac_fiterr['Bd2DstDsst']=
+frac_fiterr['Bd2DstDs1']=
+
+frac_fiterr['Bu2DststDs1']=/(5e-4+0.0177+8e-3)   #fraction of the sum x relative branching fractions
+frac_fiterr['Bu2DststDs']=/(5e-4+0.0177+8e-3)
+frac_fiterr['Bu2DststDsst']=/(5e-4+0.0177+8e-3)
+
+
+
 #SUB MODES
 #branching fractions
 BF={}
