@@ -24,6 +24,10 @@ import pandas.core.common as com
 from pandas.core.index import Index
 
 
+import sys
+num = sys.argv[1]
+
+
 
 def returnBDT(pred):
   res=[]
@@ -195,193 +199,195 @@ BF['Dsplus']['etaprho']=0.058
 BFerr['Dsplus']['etaprho']=0.015
 
 
-for num in range(2,100):
-  frac_names=list(frac_fit)
-  for name in frac_names:
-    frac_fit[name]=random.uniform(-frac_fiterr[name]+frac_fit[name],frac_fiterr[name]+frac_fit[name])
+
+frac_names=list(frac_fit)
+for name in frac_names:
+  frac_fit[name]=random.uniform(-frac_fiterr[name]+frac_fit[name],frac_fiterr[name]+frac_fit[name])
 
 
-  mode_names=list(BFerr)
-  for mode in mode_names:
-    submode_names=list(BFerr[mode])
-    for sub in submode_names:
-      BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
+mode_names=list(BFerr)
+for mode in mode_names:
+  submode_names=list(BFerr[mode])
+  for sub in submode_names:
+    BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
 
-  print BF
+print frac
 
-  #Ds+->(eta->3pi) pi+
-  #BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
-  BF['Dsplus']['etapi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
+#Ds+->(eta->3pi) pi+
+#BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
+BF['Dsplus']['etapi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
 
-  #Ds+->(omega->3pi) pi+
-  #BF['Dsplus']['omegapi_3pi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
-  BF['Dsplus']['omegapi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
+#Ds+->(omega->3pi) pi+
+#BF['Dsplus']['omegapi_3pi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
+BF['Dsplus']['omegapi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
 
-  #Ds+->(eta->3pi) (rho->2pi)
-  #BF['Dsplus']['etarho_5pi']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
-  BF['Dsplus']['etarho']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
+#Ds+->(eta->3pi) (rho->2pi)
+#BF['Dsplus']['etarho_5pi']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
+BF['Dsplus']['etarho']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
 
-  BF['Dsplus']['etappi_etapipi']=BF['Dsplus']['etappi'] * BF['etap']['etapipi'] * BF['eta']['3pi']
-  BF['Dsplus']['etappi_rhogamma']=BF['Dsplus']['etappi'] * BF['etap']['rhogamma'] * BF['rho0']['2pi']
-  BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] * BF['eta']['3pi'] * BF['rhoplus']['2pi']
-  BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
+BF['Dsplus']['etappi_etapipi']=BF['Dsplus']['etappi'] * BF['etap']['etapipi'] * BF['eta']['3pi']
+BF['Dsplus']['etappi_rhogamma']=BF['Dsplus']['etappi'] * BF['etap']['rhogamma'] * BF['rho0']['2pi']
+BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] * BF['eta']['3pi'] * BF['rhoplus']['2pi']
+BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
 
-  ############PLOT THE TOTAL HISTOGRAMS############
+############PLOT THE TOTAL HISTOGRAMS############
 
-  columns=[ 'Tau_FD_z',  'Tau_M', '3pi_M', 'Tau_m12', 'Tau_m13','Tau_m23',
-           'Tau_FD', 'costheta_D_reco','costheta_L_reco','q2_reco',
-          'chi_reco', 'Tau_life_reco']
+columns=[ 'Tau_FD_z',  'Tau_M', '3pi_M', 'Tau_m12', 'Tau_m13','Tau_m23',
+         'Tau_FD', 'costheta_D_reco','costheta_L_reco','q2_reco',
+        'chi_reco', 'Tau_life_reco']
 
 
-  #Bu2DstD0K0
-  files=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstD0K0/k3pi_LHCb_Total/model_vars.root',
-         '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstD0K0/k3pipi0_LHCb_Total/model_vars.root']
+#Bu2DstD0K0
+files=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstD0K0/k3pi_LHCb_Total/model_vars.root',
+       '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstD0K0/k3pipi0_LHCb_Total/model_vars.root']
 
-  weights0=[]
-  for file in files:
-    components=(file.split('/')[-2]).split('_')
-    components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
-    weight=BF['D0'][components[0]]
-    weights0.append(weight)
+weights0=[]
+for file in files:
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
+  weight=BF['D0'][components[0]]
+  weights0.append(weight)
 
-  sum0=sum(weights0)
-  for i in range(len(weights0)):
-    weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
+sum0=sum(weights0)
+for i in range(len(weights0)):
+  weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
-  DF=root_pandas.read_root(files[0],columns=columns,key='DecayTree')
-  DF=DF.sample(n=int(4000000*weights0[0]*frac_fit['Bu2DstD0K0']))
+DF=root_pandas.read_root(files[0],columns=columns,key='DecayTree')
+DF=DF.sample(n=int(4000000*weights0[0]*frac_fit['Bu2DstD0K0']))
 
+print 'OK'
+
+for i in range(1,len(files)):
+  df=root_pandas.read_root(files[i],columns=columns,key='DecayTree')
+  df=df.sample(n=int(4000000*weights0[i]*frac_fit['Bu2DstD0K0']))
+  DF=pd.concat([DF, df], ignore_index=True)
   print 'OK'
 
-  for i in range(1,len(files)):
-    df=root_pandas.read_root(files[i],columns=columns,key='DecayTree')
-    df=df.sample(n=int(4000000*weights0[i]*frac_fit['Bu2DstD0K0']))
-    DF=pd.concat([DF, df], ignore_index=True)
-    print 'OK'
 
 
+#Bu2DstDst0K0
+files1=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0gamma_k3pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0gamma_k3pipi0_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0pi0_k3pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0pi0_k3pipi0_LHCb_Total/model_vars.root']
 
-  #Bu2DstDst0K0
-  files1=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0gamma_k3pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0gamma_k3pipi0_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0pi0_k3pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bu2DstDst0K0/d0pi0_k3pipi0_LHCb_Total/model_vars.root']
+weights1=[]
+for file in files1:
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name
+  weight=BF['Dst0'][components[0]] * BF['D0'][components[1]]
+  weights1.append(weight)
 
-  weights1=[]
-  for file in files1:
-    components=(file.split('/')[-2]).split('_')
-    components=components[:-2]   #extract the sub mode from the file name
-    weight=BF['Dst0'][components[0]] * BF['D0'][components[1]]
-    weights1.append(weight)
+sum1=sum(weights1)
+for i in range(len(weights1)):
+  weights1[i]=weights1[i]/sum1   #define the weight with regard to the sum (the proportion)
 
-  sum1=sum(weights1)
-  for i in range(len(weights1)):
-    weights1[i]=weights1[i]/sum1   #define the weight with regard to the sum (the proportion)
-
-  for i in range(len(files1)):
-    df=root_pandas.read_root(files1[i],columns=columns,key='DecayTree')
-    df=df.sample(n=int(4000000*weights1[i]*frac_fit['Bu2DstDst0K0']),random_state=6000)
-    DF=pd.concat([DF, df], ignore_index=True)
-    print 'OK'
+for i in range(len(files1)):
+  df=root_pandas.read_root(files1[i],columns=columns,key='DecayTree')
+  df=df.sample(n=int(4000000*weights1[i]*frac_fit['Bu2DstDst0K0']),random_state=6000)
+  DF=pd.concat([DF, df], ignore_index=True)
+  print 'OK'
 
 
-  #Bd2DstD0K
-  files2=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstD0K/k3pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstD0K/k3pipi0_LHCb_Total/model_vars.root']
+#Bd2DstD0K
+files2=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstD0K/k3pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstD0K/k3pipi0_LHCb_Total/model_vars.root']
 
-  weights2=[]
-  for file in files2:
-    components=(file.split('/')[-2]).split('_')
-    components=components[:-2]   #extract the sub mode from the file name
-    weight=BF['D0'][components[0]]
-    weights2.append(weight)
-  sum2=sum(weights2)
-  for i in range(len(weights2)):
-    weights2[i]=weights2[i]/sum2   #define the weight with regard to the sum (the proportion)
+weights2=[]
+for file in files2:
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name
+  weight=BF['D0'][components[0]]
+  weights2.append(weight)
+sum2=sum(weights2)
+for i in range(len(weights2)):
+  weights2[i]=weights2[i]/sum2   #define the weight with regard to the sum (the proportion)
 
-  for i in range(len(files2)):
-    df=root_pandas.read_root(files2[i],columns=columns,key='DecayTree')
-    df=df.sample(n=int(4000000*weights2[i]*frac_fit['Bd2DstD0K']),random_state=6000)
-    DF=pd.concat([DF, df], ignore_index=True)
-    print 'OK'
+for i in range(len(files2)):
+  df=root_pandas.read_root(files2[i],columns=columns,key='DecayTree')
+  df=df.sample(n=int(4000000*weights2[i]*frac_fit['Bd2DstD0K']),random_state=6000)
+  DF=pd.concat([DF, df], ignore_index=True)
+  print 'OK'
 
 
 
 
-  #Bd2DstDst0K
-  files3=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0gamma_k3pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0gamma_k3pipi0_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0pi0_k3pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0pi0_k3pipi0_LHCb_Total/model_vars.root']
+#Bd2DstDst0K
+files3=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0gamma_k3pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0gamma_k3pipi0_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0pi0_k3pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDst0K/d0pi0_k3pipi0_LHCb_Total/model_vars.root']
 
 
-  weights3=[]
-  for file in files3:
-    components=(file.split('/')[-2]).split('_')
-    components=components[:-2]   #extract the sub mode from the file name
-    weight=BF['Dst0'][components[0]] * BF['D0'][components[1]]
-    weights3.append(weight)
+weights3=[]
+for file in files3:
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name
+  weight=BF['Dst0'][components[0]] * BF['D0'][components[1]]
+  weights3.append(weight)
 
-  sum3=sum(weights3)
-  for i in range(len(weights3)):
-    weights3[i]=weights3[i]/sum3   #define the weight with regard to the sum (the proportion)
+sum3=sum(weights3)
+for i in range(len(weights3)):
+  weights3[i]=weights3[i]/sum3   #define the weight with regard to the sum (the proportion)
 
-  for i in range(len(files3)):
-    df=root_pandas.read_root(files3[i],columns=columns,key='DecayTree')
-    df=df.sample(n=int(4000000*weights3[i]*frac_fit['Bd2DstDst0K']),random_state=6000)
-    DF=pd.concat([DF, df], ignore_index=True)
-    print 'OK'
+for i in range(len(files3)):
+  df=root_pandas.read_root(files3[i],columns=columns,key='DecayTree')
+  df=df.sample(n=int(4000000*weights3[i]*frac_fit['Bd2DstDst0K']),random_state=6000)
+  DF=pd.concat([DF, df], ignore_index=True)
+  print 'OK'
 
 
 
 
 
-  #Bd2DstDstK0
-  files4=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDstK0/k3pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDstK0/k3pipi0_LHCb_Total/model_vars.root']
+#Bd2DstDstK0
+files4=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDstK0/k3pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Bd2DstDstK0/k3pipi0_LHCb_Total/model_vars.root']
 
-  weights4=[]
-  for file in files4:
-    components=(file.split('/')[-2]).split('_')
-    components=components[:-2]   #extract the sub mode from the file name
-    weight=BF['D0'][components[0]]
-    weights4.append(weight)
-  sum4=sum(weights4)
-  for i in range(len(weights4)):
-    weights4[i]=weights4[i]/sum4   #define the weight with regard to the sum (the proportion)
+weights4=[]
+for file in files4:
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name
+  weight=BF['D0'][components[0]]
+  weights4.append(weight)
+sum4=sum(weights4)
+for i in range(len(weights4)):
+  weights4[i]=weights4[i]/sum4   #define the weight with regard to the sum (the proportion)
 
-  for i in range(len(files4)):
-    df=root_pandas.read_root(files4[i],columns=columns,key='DecayTree')
-    df=df.sample(n=int(4000000*weights4[i]*frac_fit['Bd2DstDstK0']),random_state=6000)
-    DF=pd.concat([DF, df], ignore_index=True)
-    print 'OK'
+for i in range(len(files4)):
+  df=root_pandas.read_root(files4[i],columns=columns,key='DecayTree')
+  df=df.sample(n=int(4000000*weights4[i]*frac_fit['Bd2DstDstK0']),random_state=6000)
+  DF=pd.concat([DF, df], ignore_index=True)
+  print 'OK'
 
 
-  branch_names=['3pi_M',  'Tau_m12', 'Tau_m13','Tau_m23','Tau_FD','Tau_life_reco']
+branch_names=['3pi_M',  'Tau_m12', 'Tau_m13','Tau_m23','Tau_FD','Tau_life_reco']
 
-  DF=DF.query("Tau_FD>4000.")
+DF=DF.query("Tau_FD>4000.")
 
-  DF["hamweight_SM"]=1.
-  DF["hamweight_T1"]=1.
-  DF["hamweight_T2"]=1.
+DF["hamweight_SM"]=1.
+DF["hamweight_T1"]=1.
+DF["hamweight_T2"]=1.
 
-  DF.to_root("/home/ke/tmps/D0.root","DecayTree",columns=branch_names)
+DF.to_root("/home/ke/tmps/D0.root","DecayTree",columns=branch_names)
 
-  print "THE LENGTH OF THIS FILE : ", len(DF)
+print "THE LENGTH OF THIS FILE : ", len(DF)
 
-  #toy_rand = random.randint(1,1e10)
-  #toy_suf = "_%s" % toy_rand
+#toy_rand = random.randint(1,1e10)
+#toy_suf = "_%s" % toy_rand
 
-  
 
-  D0 = root2array("/home/ke/tmps/D0.root","DecayTree",branch_names)
-  D0 = rec2array(D0)
-  y_predicted_D0 = bdt.decision_function(D0)
-  y_predicted_D0.dtype = [('BDT', np.float64)]
 
-  DF["BDT"]=returnBDT(y_predicted_D0)
-  DF.to_root('/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Merged_Bkg/D0/D0_%s.root' %num, key='DecayTree')
+D0 = root2array("/home/ke/tmps/D0.root","DecayTree",branch_names)
+D0 = rec2array(D0)
+y_predicted_D0 = bdt.decision_function(D0)
+y_predicted_D0.dtype = [('BDT', np.float64)]
 
+DF["BDT"]=returnBDT(y_predicted_D0)
+DF.to_root('/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Merged_Bkg/D0/D0_%s.root' %num, key='DecayTree')
+
+
+print "FILENAME : ", num
 
 
 
