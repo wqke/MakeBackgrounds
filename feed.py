@@ -162,6 +162,11 @@ BFerr['tau']['3pi']=5e-4
 BFerr['tau']['3pipi0']=5e-4
 
 
+###D+ decays
+#D+ -> Ks0 3pi
+BF['Dplus']['Ks3pi']=0.0297
+BFerr['Dplus']['Ks3pi']=0.0011
+
 
 ###Ds+ decays
 #Ds+->eta pi+
