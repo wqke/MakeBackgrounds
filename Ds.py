@@ -24,6 +24,11 @@ import pandas.core.common as com
 from pandas.core.index import Index
 
 
+import sys
+num = sys.argv[1]
+
+
+
 
 def returnBDT(pred):
   res=[]
@@ -221,7 +226,7 @@ submode_names=list(BFerr[mode])
 for sub in submode_names:
 BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
 
-print BF
+print frac
 
 #Ds+->(eta->3pi) pi+
 #BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
