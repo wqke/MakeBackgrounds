@@ -25,6 +25,8 @@ import pandas.core.common as com
 from pandas.core.index import Index
 
 
+import sys
+num = sys.argv[1]
 
 def returnBDT(pred):
   res=[]
@@ -209,101 +211,101 @@ fracerr['omegapi']=0.18e-3*BFerr['omega']['3pi']/1.76e-2
 
 
 
-for num in range(100):
-  frac_names=list(frac)
-  for name in frac_names:
-    frac[name]=random.uniform(-fracerr[name]+frac[name],fracerr[name]+frac[name])
+
+frac_names=list(frac)
+for name in frac_names:
+  frac[name]=random.uniform(-fracerr[name]+frac[name],fracerr[name]+frac[name])
 
 
-  mode_names=list(BFerr)
-  for mode in mode_names:
-    submode_names=list(BFerr[mode])
-    for sub in submode_names:
-      BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
+mode_names=list(BFerr)
+for mode in mode_names:
+  submode_names=list(BFerr[mode])
+  for sub in submode_names:
+    BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
 
-  print BF
+print BF
 
-  #Ds+->(eta->3pi) pi+
-  #BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
-  BF['Dsplus']['etapi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
+#Ds+->(eta->3pi) pi+
+#BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
+BF['Dsplus']['etapi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
 
-  #Ds+->(omega->3pi) pi+
-  #BF['Dsplus']['omegapi_3pi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
-  BF['Dsplus']['omegapi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
+#Ds+->(omega->3pi) pi+
+#BF['Dsplus']['omegapi_3pi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
+BF['Dsplus']['omegapi']=BF['Dsplus']['omegapi']*BF['omega']['3pi']
 
-  #Ds+->(eta->3pi) (rho->2pi)
-  #BF['Dsplus']['etarho_5pi']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
-  BF['Dsplus']['etarho']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
+#Ds+->(eta->3pi) (rho->2pi)
+#BF['Dsplus']['etarho_5pi']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
+BF['Dsplus']['etarho']=BF['Dsplus']['etarho']*BF['eta']['3pi']*BF['rho0']['2pi']
 
-  BF['Dsplus']['etappi_etapipi']=BF['Dsplus']['etappi'] * BF['etap']['etapipi'] * BF['eta']['3pi']
-  BF['Dsplus']['etappi_rhogamma']=BF['Dsplus']['etappi'] * BF['etap']['rhogamma'] * BF['rho0']['2pi']
-  BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] * BF['eta']['3pi'] * BF['rhoplus']['2pi']
-  BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
+BF['Dsplus']['etappi_etapipi']=BF['Dsplus']['etappi'] * BF['etap']['etapipi'] * BF['eta']['3pi']
+BF['Dsplus']['etappi_rhogamma']=BF['Dsplus']['etappi'] * BF['etap']['rhogamma'] * BF['rho0']['2pi']
+BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] * BF['eta']['3pi'] * BF['rhoplus']['2pi']
+BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
 
-  ############PLOT THE TOTAL HISTOGRAMS############
+############PLOT THE TOTAL HISTOGRAMS############
 
-  columns=[ 'Tau_FD_z',  'Tau_M', '3pi_M', 'Tau_m12', 'Tau_m13','Tau_m23',
-           'Tau_FD', 'costheta_D_reco','costheta_L_reco','q2_reco',
-           'chi_reco', 'Tau_life_reco']
-
-
-
-
-  files=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/3pipi0_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/4pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/5pi_LHCb_Total/model_vars.root',
-  '/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/omegapi_LHCb_Total/model_vars.root']
+columns=[ 'Tau_FD_z',  'Tau_M', '3pi_M', 'Tau_m12', 'Tau_m13','Tau_m23',
+         'Tau_FD', 'costheta_D_reco','costheta_L_reco','q2_reco',
+         'chi_reco', 'Tau_life_reco']
 
 
 
 
+files=['/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/3pipi0_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/4pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/5pi_LHCb_Total/model_vars.root',
+'/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/B2Dst3piX/omegapi_LHCb_Total/model_vars.root']
 
-  weights0=[]
-  for file in files:
-    components=(file.split('/')[-2]).split('_')
-    components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
-    weight=frac[components[0]]
-    weights0.append(weight)
 
-  sum0=sum(weights0)
-  for i in range(len(weights0)):
-    weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
-  DF=root_pandas.read_root(files[0],columns=columns,key='DecayTree')
 
-  DF=DF.sample(n=int(3200000*weights0[0]),random_state=20000)
+
+weights0=[]
+for file in files:
+  components=(file.split('/')[-2]).split('_')
+  components=components[:-2]   #extract the sub mode from the file name, remove 'LHCb_Total'
+  weight=frac[components[0]]
+  weights0.append(weight)
+
+sum0=sum(weights0)
+for i in range(len(weights0)):
+  weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
+
+DF=root_pandas.read_root(files[0],columns=columns,key='DecayTree')
+
+DF=DF.sample(n=int(3200000*weights0[0]),random_state=20000)
+print 'OK'
+
+for i in range(1,len(files)):
+  df=root_pandas.read_root(files[i],columns=columns,key='DecayTree')
+  df=df.sample(n=int(3200000*weights0[i]),random_state=20000)
+  DF=pd.concat([DF, df], ignore_index=True)
   print 'OK'
 
-  for i in range(1,len(files)):
-    df=root_pandas.read_root(files[i],columns=columns,key='DecayTree')
-    df=df.sample(n=int(3200000*weights0[i]),random_state=20000)
-    DF=pd.concat([DF, df], ignore_index=True)
-    print 'OK'
+branch_names=['3pi_M',  'Tau_m12', 'Tau_m13','Tau_m23','Tau_FD','Tau_life_reco']
 
-  branch_names=['3pi_M',  'Tau_m12', 'Tau_m13','Tau_m23','Tau_FD','Tau_life_reco']
+DF=DF.query("Tau_FD>4000.")
 
-  DF=DF.query("Tau_FD>4000.")
+DF["hamweight_SM"]=1.
+DF["hamweight_T1"]=1.
+DF["hamweight_T2"]=1.
 
-  DF["hamweight_SM"]=1.
-  DF["hamweight_T1"]=1.
-  DF["hamweight_T2"]=1.
+DF.to_root("/home/ke/tmps/prompt.root","DecayTree",columns=branch_names)
 
-  DF.to_root("/home/ke/tmps/prompt.root","DecayTree",columns=branch_names)
+print "THE LENGTH OF THIS FILE : ", len(DF)
 
-  print "THE LENGTH OF THIS FILE : ", len(DF)
+#toy_rand = random.randint(1,1e10)
+#toy_suf = "_%s" % toy_rand
 
-  #toy_rand = random.randint(1,1e10)
-  #toy_suf = "_%s" % toy_rand
 
-  
 
-  D0 = root2array("/home/ke/tmps/prompt.root","DecayTree",branch_names)
-  D0 = rec2array(D0)
-  y_predicted_D0 = bdt.decision_function(D0)
-  y_predicted_D0.dtype = [('BDT', np.float64)]
+D0 = root2array("/home/ke/tmps/prompt.root","DecayTree",branch_names)
+D0 = rec2array(D0)
+y_predicted_D0 = bdt.decision_function(D0)
+y_predicted_D0.dtype = [('BDT', np.float64)]
 
-  DF["BDT"]=returnBDT(y_predicted_D0)
-  DF.to_root('/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Merged_Bkg/prompt/prompt_%s.root' %num, key='DecayTree')
+DF["BDT"]=returnBDT(y_predicted_D0)
+DF.to_root('/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Merged_Bkg/prompt/prompt_%s.root' %num, key='DecayTree')
 
 
 
