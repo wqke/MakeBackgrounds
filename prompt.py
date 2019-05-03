@@ -95,7 +95,7 @@ BF['D10']['dstpiplus']=1.
 BFerr['D10']['dstpiplus']=0.
 ###D+ decays
 #D+ -> Ks0 3pi
-BF['Dplus']['ks3pi']=0.0297
+BF['Dplus']['Ks3pi']=0.0297
 BFerr['Dplus']['Ks3pi']=0.0011
 #D+ -> pi+pi+pi-pi0
 BF['Dplus']['3pipi0']=0.0111
@@ -223,7 +223,7 @@ for mode in mode_names:
   for sub in submode_names:
     BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
 
-print BF
+print frac
 
 #Ds+->(eta->3pi) pi+
 #BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
@@ -244,7 +244,7 @@ BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] 
 
 ############PLOT THE TOTAL HISTOGRAMS############
 
-columns=[ 'Tau_FD_z',  'Tau_M', '3pi_M', 'Tau_m12', 'Tau_m13','Tau_m23',
+columns=[ 'Tau_FD_z',  '3pi_M', 'Tau_m12', 'Tau_m13','Tau_m23',
          'Tau_FD', 'costheta_D_reco','costheta_L_reco','q2_reco',
          'chi_reco', 'Tau_life_reco']
 
@@ -273,12 +273,12 @@ for i in range(len(weights0)):
 
 DF=root_pandas.read_root(files[0],columns=columns,key='DecayTree')
 
-DF=DF.sample(n=int(3200000*weights0[0]),random_state=20000)
+DF=DF.sample(n=int(2000000*weights0[0]),random_state=20000)
 print 'OK'
 
 for i in range(1,len(files)):
   df=root_pandas.read_root(files[i],columns=columns,key='DecayTree')
-  df=df.sample(n=int(3200000*weights0[i]),random_state=20000)
+  df=df.sample(n=int(2000000*weights0[i]),random_state=20000)
   DF=pd.concat([DF, df], ignore_index=True)
   print 'OK'
 
@@ -306,6 +306,7 @@ y_predicted_D0.dtype = [('BDT', np.float64)]
 
 DF["BDT"]=returnBDT(y_predicted_D0)
 DF.to_root('/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Merged_Bkg/prompt/prompt_%s.root' %num, key='DecayTree')
+print "FILENAME : ", num
 
 
 
