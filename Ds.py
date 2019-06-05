@@ -28,6 +28,14 @@ import sys
 num = sys.argv[1]
 
 
+branch_names1=['3pi_M',  'Tau_m12', 'Tau_m13','Tau_m23','Tau_FD','Tau_life_reco','q2_reco','chi_reco','costheta_L_reco','costheta_D_reco']
+#BFac=['q2_reco_BFac', 'theta_L_reco_BFac', 'costheta_L_reco_BFac', 'theta_D_reco_BFac', 'costheta_D_reco_BFac', 'chi_reco_BFac', 'coschi_reco_BFac', 'm2_miss_reco_BFac', 'q2_true_BFac', 'theta_L_true_BFac', 'costheta_L_true_BFac', 'theta_D_true_BFac', 'costheta_D_true_BFac', 'chi_true_BFac', 'coschi_true_BFac', 'm2_miss_true_BFac']
+BFac=['q2_reco_BFac', 'theta_L_reco_BFac', 'costheta_L_reco_BFac', 'theta_D_reco_BFac', 'costheta_D_reco_BFac', 'chi_reco_BFac', 'coschi_reco_BFac', 'm2_miss_reco_BFac']
+
+
+
+columns=BFac+branch_names1
+
 
 
 def returnBDT(pred):
@@ -45,10 +53,10 @@ frac_fit={}
 frac_fit['Bd2DstDs']=0.594
 frac_fit['Bd2DstDsst']=1.
 frac_fit['Bd2DstDs1']=0.365
-
-frac_fit['Bu2DststDs1']=0.416*5e-4/(5e-4+0.0177+8e-3)   #fraction of the sum x relative branching fractions
 frac_fit['Bu2DststDs']=0.416*0.0177/(5e-4+0.0177+8e-3)
+
 frac_fit['Bu2DststDsst']=0.416*8e-3/(5e-4+0.0177+8e-3)
+frac_fit['Bu2DststDs1']=0.416*5e-4/(5e-4+0.0177+8e-3)   #fraction of the sum x relative branching fractions
 
 
 frac_fiterr={}
@@ -122,7 +130,7 @@ BF['D10']['dstpiplus']=1.
 BFerr['D10']['dstpiplus']=0.
 ###D+ decays
 #D+ -> Ks0 3pi
-BF['Dplus']['ks3pi']=0.0297
+BF['Dplus']['Ks3pi']=0.0297
 BFerr['Dplus']['Ks3pi']=0.0011
 #D+ -> pi+pi+pi-pi0
 BF['Dplus']['3pipi0']=0.0111
@@ -217,16 +225,16 @@ BFerr['Dsplus']['etaprho']=0.015
 
 frac_names=list(frac_fit)
 for name in frac_names:
-frac_fit[name]=random.uniform(-frac_fiterr[name]+frac_fit[name],frac_fiterr[name]+frac_fit[name])
+  frac_fit[name]=random.uniform(-frac_fiterr[name]+frac_fit[name],frac_fiterr[name]+frac_fit[name])
 
 
 mode_names=list(BFerr)
 for mode in mode_names:
-submode_names=list(BFerr[mode])
+  submode_names=list(BFerr[mode])
 for sub in submode_names:
-BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
+  BF[mode][sub]=random.uniform(-BFerr[mode][sub]+BF[mode][sub],BFerr[mode][sub]+BF[mode][sub])
 
-print frac
+print frac_fit
 
 #Ds+->(eta->3pi) pi+
 #BF['Dsplus']['etapi_3pi']=BF['Dsplus']['etapi']*BF['eta']['3pi']
@@ -246,9 +254,9 @@ BF['Dsplus']['etaprho_etapipi']=BF['Dsplus']['etaprho'] * BF['etap']['etapipi'] 
 BF['Dsplus']['etaprho_rhogamma']=BF['Dsplus']['etaprho'] * BF['rhoplus']['2pi'] *BF['etap']['rhogamma'] * BF['rho0']['2pi'] 
 
 
-columns=[ 'Tau_FD_z',  'Tau_M', '3pi_M', 'Tau_m12', 'Tau_m13','Tau_m23',
-   'Tau_FD', 'costheta_D_reco','costheta_L_reco','q2_reco',
-   'chi_reco', 'Tau_life_reco']
+
+
+
 
 
 
@@ -295,12 +303,13 @@ for i in range(len(weights0)):
   weights0[i]=weights0[i]/sum0   #define the weight with regard to the sum (the proportion)
 
 DF=root_pandas.read_root(files[0],columns=columns,key='DecayTree')
-DF=DF.sample(n=int(10000000*weights0[0]*frac_fit['Bd2DstDs1']),random_state=10000)
+
+DF=DF.sample(n=int(1000000*weights0[0]*frac_fit['Bd2DstDs1']),random_state=10000)
 for i in range(1,len(files)):
   df=root_pandas.read_root(files[i],columns=columns,key='DecayTree')
-  df=df.sample(n=int(10000000*weights0[i]*frac_fit['Bd2DstDs1']),random_state=10000)
+  df=df.sample(n=int(1000000*weights0[i]*frac_fit['Bd2DstDs1']),random_state=10000)
   DF=pd.concat([DF, df], ignore_index=True)
-
+  print 'OK'
 
 
 
@@ -335,9 +344,9 @@ for i in range(len(weights1)):
 for i in range(len(files1)):
   df=root_pandas.read_root(files1[i],columns=columns,key='DecayTree')
 
-  df=df.sample(n=int(10000000*weights1[i]*frac_fit['Bd2DstDs']),random_state=10000)
+  df=df.sample(n=int(1000000*weights1[i]*frac_fit['Bd2DstDs']),random_state=10000)
   DF=pd.concat([DF, df], ignore_index=True)
-
+  print 'OK' 
 
 
 
@@ -383,9 +392,9 @@ for i in range(len(weights2)):
 
 for i in range(len(files2)):
   df=root_pandas.read_root(files2[i],columns=columns,key='DecayTree')
-  df=df.sample(n=int(10000000*weights2[i]*frac_fit['Bd2DstDsst']),random_state=10000)
+  df=df.sample(n=int(1000000*weights2[i]*frac_fit['Bd2DstDsst']),random_state=10000)
   DF=pd.concat([DF, df], ignore_index=True)
-
+  print 'OK'
 
 
 
@@ -422,9 +431,9 @@ for i in range(len(weights3)):
 
 for i in range(len(files3)):
   df=root_pandas.read_root(files3[i],columns=columns,key='DecayTree')
-  df=df.sample(n=int(10000000*weights3[i]*frac_fit['Bu2DststDs']),random_state=10000)
+  df=df.sample(n=int(1000000*weights3[i]*frac_fit['Bu2DststDs']),random_state=10000)
   DF=pd.concat([DF, df], ignore_index=True)
-
+  print 'OK' 
 
 
 
@@ -467,10 +476,10 @@ for i in range(len(weights4)):
 
 for i in range(len(files4)):
   df=root_pandas.read_root(files4[i],columns=columns,key='DecayTree')
-  df=df.sample(n=int(10000000*weights4[i]*frac_fit['Bu2DststDsst']),random_state=10000)
+  df=df.sample(n=int(1000000*weights4[i]*frac_fit['Bu2DststDsst']),random_state=10000)
   DF=pd.concat([DF, df], ignore_index=True)
-
-
+  print 'OK'
+ 
 
 
 #Bu2DststDs1
@@ -519,7 +528,7 @@ for i in range(len(weights5)):
 
 for i in range(len(files5)):
   df=root_pandas.read_root(files5[i],columns=columns,key='DecayTree')
-  df=df.sample(n=int(10000000*weights5[i]*frac_fit['Bu2DststDs1']),random_state=10000)
+  df=df.sample(n=int(1000000*weights5[i]*frac_fit['Bu2DststDs1']),random_state=10000)
   DF=pd.concat([DF, df], ignore_index=True)
   print 'OK'
 
@@ -528,6 +537,8 @@ for i in range(len(files5)):
 branch_names=['3pi_M',  'Tau_m12', 'Tau_m13','Tau_m23','Tau_FD','Tau_life_reco']
 
 DF=DF.query("Tau_FD>4000.")
+DF=DF.query(' costheta_L_reco<1. and costheta_L_reco>-1. and costheta_D_reco<1. and costheta_D_reco>-1. and chi_reco<%s and chi_reco>%s' %(np.pi,-np.pi))
+
 
 DF["hamweight_SM"]=1.
 DF["hamweight_T1"]=1.
@@ -535,7 +546,7 @@ DF["hamweight_T2"]=1.
 
 DF.to_root("/home/ke/tmps/Ds.root","DecayTree",columns=branch_names)
 
-print "THE LENGTH OF THIS FILE : ", len(DF)
+
 
 #toy_rand = random.randint(1,1e10)
 #toy_suf = "_%s" % toy_rand
@@ -547,12 +558,15 @@ Ds = rec2array(Ds)
 y_predicted_Ds = bdt.decision_function(Ds)
 y_predicted_Ds.dtype = [('BDT', np.float64)]
 
+
+
+
 DF["BDT"]=returnBDT(y_predicted_Ds)
+
 DF.to_root('/data/lhcb/users/hill/Bd2DstTauNu_Angular/RapidSim_tuples/Merged_Bkg/Ds/Ds_%s.root' %num, key='DecayTree')
+print "THE LENGTH OF THIS FILE : ", len(DF)
 
 print "FILENAME : ", num
-
-
 
 
 
